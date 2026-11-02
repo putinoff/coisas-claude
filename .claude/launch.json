@@ -6,6 +6,13 @@
       "runtimeExecutable": "py",
       "runtimeArgs": ["-m", "http.server", "5500", "--directory", "site-mariana"],
       "port": 5500
+    },
+    {
+      "name": "site-mariana-alt",
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["-m", "http.server", "5502", "--directory", "C:\\Users\\zzapt\\OneDrive\\Área de Trabalho\\sites-claude\\site-mariana"],
+      "port": 5502,
+      "autoPort": false
     }
   ]
 }

@@ -22,12 +22,42 @@ const RECADOS_KITTY = [
 ];
 
 const MOTIVOS = [
-  { tit: 'Seu sorriso', t: 'Ele liga o meu dia mais rápido que a partida de uma BMW.' },
-  { tit: 'Seu jeitinho', t: 'Essa fofura de Hello Kitty que você tem sem nem tentar.' },
-  { tit: 'Única', t: 'Você é tipo uma BMW: linda, potente e sem igual no mundo.', bmw: true },
-  { tit: 'Seu abraço', t: 'O meu lugar favorito para estacionar.' },
-  { tit: 'Nossas risadas', t: 'Aquelas sem motivo nenhum, que viram as melhores lembranças.' },
-  { tit: 'Todo dia', t: 'Porque é em você que eu penso antes de dormir — e ao acordar.' },
+  { tit: 'Seu sorriso', t: 'Ele liga o meu dia mais rápido que a partida de uma BMW.', icone: '😊', g: 'linear-gradient(145deg, #ff9a9e, #fecfef)' },
+  { tit: 'Seu jeitinho', t: 'Essa fofura de Hello Kitty que você tem sem nem tentar.', icone: '🎀', g: 'linear-gradient(145deg, #f78ca0, #f9748f 40%, #fe9a8b)' },
+  { tit: 'Única', t: 'Você é tipo uma BMW: linda, potente e sem igual no mundo.', bmw: true, icone: '🏎️', g: 'linear-gradient(145deg, #4facfe, #6a5cf0)' },
+  { tit: 'Seu abraço', t: 'O meu lugar favorito para estacionar.', icone: '🤗', g: 'linear-gradient(145deg, #c471f5, #fa71cd)' },
+  { tit: 'Nossas risadas', t: 'Aquelas sem motivo nenhum, que viram as melhores lembranças.', icone: '😂', g: 'linear-gradient(145deg, #f6a96b, #ff7eb3)' },
+  { tit: 'Todo dia', t: 'Porque é em você que eu penso antes de dormir — e ao acordar.', icone: '🌙', g: 'linear-gradient(145deg, #a18cd1, #fbc2eb)' },
+];
+
+/* Data em que vocês começaram (ano-mês-diaThora:minuto) — troque pela de vocês */
+const DATA_INICIO = '2025-08-12T00:00:00';
+
+/* Uma frase para cada estrela da constelação (a quantidade define o desenho) */
+const DESEJOS_ESTRELAS = [
+  'Que a gente viaje o mundo inteiro, de janela aberta.',
+  'Que nunca falte motivo pra você sorrir.',
+  'Que todo domingo tenha preguiça e abraço.',
+  'Que a gente ria até a barriga doer, sempre.',
+  'Que eu te faça sentir amada todos os dias.',
+  'Que a nossa playlist nunca acabe.',
+  'Que cada aniversário seu seja mais bonito que o anterior.',
+  'Que a gente envelheça junto, de mãos dadas.',
+  'Que cada viagem vire uma história pra contar.',
+  'Que você nunca duvide do quanto é especial.',
+  'Que a gente dance na cozinha, mesmo sem música.',
+  'Que todos os seus sonhos tenham a minha torcida.',
+];
+const MENSAGEM_CONSTELACAO = 'Você completou o céu: ele desenha um coração. O meu, que é todinho seu.';
+
+/* Raspadinhas */
+const VALES = [
+  { emoji: '🍝', tit: 'Um jantar romântico', obs: 'você escolhe o lugar, eu pago a conta', g: 'linear-gradient(135deg, #ff6a88, #ff99ac)' },
+  { emoji: '🚗', tit: 'Um passeio sem destino', obs: 'janela aberta e sua playlist no máximo', g: 'linear-gradient(135deg, #4facfe, #8e7cf3)' },
+  { emoji: '🎀', tit: 'Um dia Hello Kitty', obs: 'filme, doce e tudo do jeitinho que você quiser', g: 'linear-gradient(135deg, #f093fb, #f5576c)' },
+  { emoji: '💆‍♀️', tit: 'Uma massagem', obs: 'sem hora pra acabar, válido pra sempre', g: 'linear-gradient(135deg, #43e2b0, #38b6d8)' },
+  { emoji: '🍫', tit: 'Chocolate ilimitado', obs: 'resgate a qualquer momento de TPM ou não', g: 'linear-gradient(135deg, #f6a96b, #e8638c)' },
+  { emoji: '💋', tit: '1.000 beijos', obs: 'parcelados em quantas vezes você quiser', g: 'linear-gradient(135deg, #c471f5, #fa71cd)' },
 ];
 
 /* =========================================================
@@ -125,524 +155,6 @@ function somSino() {
 }
 
 /* =========================================================
-   SHOWROOM 3D
-   ========================================================= */
-(function showroom() {
-  const canvas = document.getElementById('scene');
-  const carregando = document.getElementById('carregando');
-  if (typeof THREE === 'undefined') { carregando.textContent = 'Não foi possível carregar o 3D.'; return; }
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-  const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x0c0b0e, 11, 26);
-  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
-
-  /* ---------- reflexos: um "estúdio" virtual vira mapa de ambiente ---------- */
-  (function ambiente() {
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const estudio = new THREE.Scene();
-    estudio.add(new THREE.Mesh(
-      new THREE.BoxGeometry(30, 14, 30),
-      new THREE.MeshBasicMaterial({ color: 0x141116, side: THREE.BackSide })
-    ));
-    const painel = (w, h, cor, forca, pos, rot) => {
-      const m = new THREE.Mesh(
-        new THREE.PlaneGeometry(w, h),
-        new THREE.MeshBasicMaterial({ color: new THREE.Color(cor).multiplyScalar(forca), side: THREE.DoubleSide })
-      );
-      m.position.set(...pos);
-      if (rot) m.rotation.set(...rot);
-      estudio.add(m);
-    };
-    painel(18, 4, 0xffffff, 4, [0, 6.8, 0], [Math.PI / 2, 0, 0]);
-    painel(10, 3, 0xffffff, 2.5, [-14.8, 3, 2], [0, Math.PI / 2, 0]);
-    painel(10, 3, 0xffc6d6, 2.5, [14.8, 3, -2], [0, -Math.PI / 2, 0]);
-    painel(14, 1.2, 0xffffff, 2, [0, 1.5, -14.8]);
-    painel(14, 1.2, 0xffe0ea, 1.6, [0, 1.5, 14.8], [0, Math.PI, 0]);
-    scene.environment = pmrem.fromScene(estudio, 0.035).texture;
-    pmrem.dispose();
-  })();
-
-  /* ---------- luzes ---------- */
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x2a1a20, 0.35));
-  const chave = new THREE.DirectionalLight(0xffffff, 1.5);
-  chave.position.set(3, 9, 4);
-  chave.castShadow = true;
-  chave.shadow.mapSize.set(2048, 2048);
-  Object.assign(chave.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 20 });
-  chave.shadow.bias = -0.0004;
-  chave.shadow.radius = 4;
-  scene.add(chave);
-  const contraRosa = new THREE.SpotLight(0xff6f9c, 3, 18, 0.6, 1);
-  contraRosa.position.set(-6, 4, -5);
-  scene.add(contraRosa);
-  const contraAzul = new THREE.SpotLight(0x6f9cff, 2, 18, 0.6, 1);
-  contraAzul.position.set(6, 3, -6);
-  scene.add(contraAzul);
-
-  /* ---------- texturas desenhadas em canvas ---------- */
-  function gradienteRadial(cores, tam = 256) {
-    const c = document.createElement('canvas');
-    c.width = c.height = tam;
-    const g = c.getContext('2d');
-    const grd = g.createRadialGradient(tam / 2, tam / 2, 0, tam / 2, tam / 2, tam / 2);
-    cores.forEach(([p, cor]) => grd.addColorStop(p, cor));
-    g.fillStyle = grd;
-    g.fillRect(0, 0, tam, tam);
-    return new THREE.CanvasTexture(c);
-  }
-  function texturaLogo() {
-    const c = document.createElement('canvas');
-    c.width = c.height = 256;
-    const g = c.getContext('2d');
-    const anel = g.createLinearGradient(0, 0, 256, 256);
-    anel.addColorStop(0, '#f2f2f2'); anel.addColorStop(0.5, '#8d8d8d'); anel.addColorStop(1, '#e6e6e6');
-    g.fillStyle = anel; g.beginPath(); g.arc(128, 128, 128, 0, Math.PI * 2); g.fill();
-    g.fillStyle = '#0d0d0f'; g.beginPath(); g.arc(128, 128, 118, 0, Math.PI * 2); g.fill();
-    ['#1c69d4', '#ffffff', '#1c69d4', '#ffffff'].forEach((cor, i) => {
-      g.fillStyle = cor;
-      g.beginPath(); g.moveTo(128, 128);
-      g.arc(128, 128, 74, -Math.PI / 2 + i * Math.PI / 2, i * Math.PI / 2);
-      g.fill();
-    });
-    g.strokeStyle = '#bdbdbd'; g.lineWidth = 5;
-    g.beginPath(); g.arc(128, 128, 74, 0, Math.PI * 2); g.stroke();
-    g.fillStyle = '#fff'; g.font = '600 38px Helvetica, Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    [['B', -0.72], ['M', 0], ['W', 0.72]].forEach(([l, a]) => {
-      g.save(); g.translate(128, 128); g.rotate(a); g.fillText(l, 0, -96); g.restore();
-    });
-    const t = new THREE.CanvasTexture(c);
-    t.encoding = THREE.sRGBEncoding;
-    t.anisotropy = 8;
-    return t;
-  }
-  function texturaPlaca(texto) {
-    const c = document.createElement('canvas');
-    c.width = 520; c.height = 170;
-    const g = c.getContext('2d');
-    g.fillStyle = '#f5f5f2'; g.fillRect(0, 0, 520, 170);
-    g.fillStyle = '#0a3d91'; g.fillRect(0, 0, 520, 42);
-    g.fillStyle = '#fff'; g.font = '600 24px Helvetica, Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText('BRASIL', 260, 22);
-    // bandeirinha
-    g.fillStyle = '#009c3b'; g.fillRect(462, 9, 40, 26);
-    g.fillStyle = '#ffdf00'; g.beginPath(); g.moveTo(482, 11); g.lineTo(499, 22); g.lineTo(482, 33); g.lineTo(465, 22); g.fill();
-    g.fillStyle = '#002776'; g.beginPath(); g.arc(482, 22, 6, 0, Math.PI * 2); g.fill();
-    // texto da placa
-    g.fillStyle = '#151515';
-    g.font = 'bold 96px "Arial Narrow", Arial, sans-serif';
-    const largura = g.measureText(texto).width;
-    g.save();
-    g.translate(260, 110);
-    g.scale(Math.min(1, 470 / largura), 1);
-    g.fillText(texto, 0, 0);
-    g.restore();
-    g.strokeStyle = '#222'; g.lineWidth = 8; g.strokeRect(4, 4, 512, 162);
-    const t = new THREE.CanvasTexture(c);
-    t.encoding = THREE.sRGBEncoding;
-    t.anisotropy = 8;
-    return t;
-  }
-
-  /* ---------- piso do showroom ---------- */
-  const piso = new THREE.Mesh(
-    new THREE.CircleGeometry(16, 96),
-    new THREE.MeshStandardMaterial({
-      color: 0x0e0c10, roughness: 0.75, metalness: 0.2, envMapIntensity: 0.3,
-      alphaMap: gradienteRadial([[0, '#fff'], [0.45, '#fff'], [1, '#000']]),
-      transparent: true,
-    })
-  );
-  piso.rotation.x = -Math.PI / 2;
-  piso.receiveShadow = true;
-  scene.add(piso);
-
-  const sombraContato = new THREE.Mesh(
-    new THREE.PlaneGeometry(5.6, 2.8),
-    new THREE.MeshBasicMaterial({
-      map: gradienteRadial([[0, 'rgba(0,0,0,0.85)'], [0.55, 'rgba(0,0,0,0.35)'], [1, 'rgba(0,0,0,0)']]),
-      transparent: true, depthWrite: false,
-    })
-  );
-  sombraContato.rotation.x = -Math.PI / 2;
-  sombraContato.position.y = 0.004;
-  scene.add(sombraContato);
-
-  const brilhoChao = new THREE.Mesh(
-    new THREE.PlaneGeometry(11, 11),
-    new THREE.MeshBasicMaterial({
-      map: gradienteRadial([[0, 'rgba(255,120,160,0.18)'], [0.5, 'rgba(255,120,160,0.04)'], [1, 'rgba(255,120,160,0)']]),
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    })
-  );
-  brilhoChao.rotation.x = -Math.PI / 2;
-  brilhoChao.position.y = 0.002;
-  scene.add(brilhoChao);
-
-  const aro = new THREE.Mesh(
-    new THREE.TorusGeometry(3.6, 0.008, 8, 160),
-    new THREE.MeshBasicMaterial({ color: 0xe3a3b7 })
-  );
-  aro.rotation.x = Math.PI / 2;
-  aro.position.y = 0.01;
-  scene.add(aro);
-
-  /* ---------- materiais do carro ---------- */
-  const M = {
-    pintura: new THREE.MeshPhysicalMaterial({
-      color: 0xd9849f, metalness: 0.55, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.3,
-    }),
-    vidro: new THREE.MeshPhysicalMaterial({ color: 0x07080b, metalness: 0.9, roughness: 0.04, clearcoat: 1, envMapIntensity: 1.6 }),
-    cromo: new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0.08 }),
-    pretoBrilho: new THREE.MeshStandardMaterial({ color: 0x060606, metalness: 0.6, roughness: 0.15 }),
-    pretoFosco: new THREE.MeshStandardMaterial({ color: 0x0c0c0c, metalness: 0.1, roughness: 0.6 }),
-    pneu: new THREE.MeshStandardMaterial({ color: 0x121212, roughness: 0.88, side: THREE.DoubleSide }),
-    roda: new THREE.MeshStandardMaterial({ color: 0x3a3d43, metalness: 1, roughness: 0.28 }),
-    disco: new THREE.MeshStandardMaterial({ color: 0x8a8a8a, metalness: 1, roughness: 0.45 }),
-    pinca: new THREE.MeshStandardMaterial({ color: 0x1c69d4, metalness: 0.3, roughness: 0.35 }),
-    farol: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xcfe6ff, emissiveIntensity: 0.25 }),
-    lanterna: new THREE.MeshStandardMaterial({ color: 0x4a0008, emissive: 0xff1030, emissiveIntensity: 0.35 }),
-    logo: new THREE.MeshStandardMaterial({ map: texturaLogo(), metalness: 0.4, roughness: 0.25 }),
-    placa: new THREE.MeshStandardMaterial({ map: texturaPlaca('MARIANA'), roughness: 0.45 }),
-    laco: new THREE.MeshPhysicalMaterial({ color: 0xd63b6b, roughness: 0.4, clearcoat: 0.7 }),
-  };
-
-  const carro = new THREE.Group();
-  scene.add(carro);
-  const add = (geo, mat, pos, rot, pai = carro) => {
-    const m = new THREE.Mesh(geo, mat);
-    if (pos) m.position.set(...pos);
-    if (rot) m.rotation.set(...rot);
-    m.castShadow = true;
-    pai.add(m);
-    return m;
-  };
-  const retArredondado = (w, h, r) => {
-    const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
-    s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r);
-    s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r);
-    s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y);
-    return s;
-  };
-
-  // carroceria (perfil lateral de cupê, com caixas de roda)
-  const perfil = new THREE.Shape();
-  perfil.moveTo(-2.15, 0.32);
-  perfil.lineTo(-1.87, 0.32);
-  perfil.absarc(-1.35, 0.4, 0.52, Math.PI, 0, true);
-  perfil.lineTo(0.83, 0.32);
-  perfil.absarc(1.35, 0.4, 0.52, Math.PI, 0, true);
-  perfil.lineTo(2.1, 0.32);
-  perfil.quadraticCurveTo(2.32, 0.34, 2.33, 0.55);
-  perfil.quadraticCurveTo(2.33, 0.8, 2.05, 0.86);
-  perfil.quadraticCurveTo(1.4, 0.95, 0.8, 1.0);
-  perfil.lineTo(-1.7, 1.02);
-  perfil.quadraticCurveTo(-2.15, 1.02, -2.25, 0.9);
-  perfil.quadraticCurveTo(-2.32, 0.6, -2.25, 0.4);
-  perfil.lineTo(-2.15, 0.32);
-  const corpoGeo = new THREE.ExtrudeGeometry(perfil, {
-    depth: 1.5, bevelEnabled: true, bevelThickness: 0.2, bevelSize: 0.1, bevelSegments: 10, curveSegments: 40,
-  });
-  corpoGeo.translate(0, 0, -0.75);
-  add(corpoGeo, M.pintura);
-
-  // cabine de vidro (mais estreita que a carroceria, como num carro de verdade)
-  const cabine = new THREE.Shape();
-  cabine.moveTo(0.78, 0.98);
-  cabine.quadraticCurveTo(0.35, 1.22, 0.02, 1.4);
-  cabine.quadraticCurveTo(-0.55, 1.51, -1.1, 1.41);
-  cabine.quadraticCurveTo(-1.55, 1.25, -1.88, 1.0);
-  cabine.lineTo(0.78, 0.98);
-  const cabineGeo = new THREE.ExtrudeGeometry(cabine, {
-    depth: 1.1, bevelEnabled: true, bevelThickness: 0.16, bevelSize: 0.06, bevelSegments: 8, curveSegments: 32,
-  });
-  cabineGeo.translate(0, 0, -0.55);
-  add(cabineGeo, M.vidro);
-
-  // grade "duplo rim"
-  [-0.18, 0.18].forEach(z => {
-    const moldura = retArredondado(0.3, 0.25, 0.08);
-    moldura.holes.push(retArredondado(0.25, 0.2, 0.06));
-    add(new THREE.ExtrudeGeometry(moldura, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 2 }),
-      M.cromo, [2.39, 0.64, z], [0, Math.PI / 2, 0]);
-    add(new THREE.ExtrudeGeometry(retArredondado(0.26, 0.21, 0.065), { depth: 0.02, bevelEnabled: false }),
-      M.pretoBrilho, [2.38, 0.64, z], [0, Math.PI / 2, 0]);
-    for (let i = -3; i <= 3; i++) add(new THREE.BoxGeometry(0.02, 0.2, 0.008), M.cromo, [2.415, 0.64, z + i * 0.034]);
-  });
-
-  // faróis com "angel eyes"
-  const olhosAnjo = [];
-  [-1, 1].forEach(l => {
-    add(new THREE.BoxGeometry(0.12, 0.1, 0.42), M.pretoBrilho, [2.34, 0.74, l * 0.62], [0, 0, -0.35]);
-    [0.52, 0.72].forEach(z => {
-      olhosAnjo.push(add(new THREE.TorusGeometry(0.048, 0.009, 8, 32), M.farol, [2.405, 0.745, l * z], [0, Math.PI / 2, 0]));
-      add(new THREE.CircleGeometry(0.04, 24), M.cromo, [2.398, 0.745, l * z], [0, Math.PI / 2, 0]);
-    });
-  });
-  // entrada de ar, splitter e placa dianteira
-  add(new THREE.BoxGeometry(0.06, 0.12, 1.5), M.pretoBrilho, [2.38, 0.42, 0]);
-  add(new THREE.BoxGeometry(0.3, 0.03, 1.7), M.pretoFosco, [2.25, 0.25, 0]);
-  add(new THREE.PlaneGeometry(0.44, 0.144), M.placa, [2.425, 0.43, 0], [0, Math.PI / 2, 0]);
-
-  // traseira: lanternas em L, difusor, escapes, placa e logo
-  [-1, 1].forEach(l => {
-    add(new THREE.BoxGeometry(0.05, 0.07, 0.42), M.lanterna, [-2.33, 0.9, l * 0.6]);
-    add(new THREE.BoxGeometry(0.05, 0.16, 0.07), M.lanterna, [-2.33, 0.84, l * 0.78]);
-    const escape = add(new THREE.CylinderGeometry(0.05, 0.05, 0.16, 24, 1, true), M.cromo, [-2.3, 0.3, l * 0.55], [0, 0, Math.PI / 2]);
-    escape.material = M.cromo;
-    add(new THREE.CircleGeometry(0.042, 24), M.pretoFosco, [-2.31, 0.3, l * 0.55], [0, -Math.PI / 2, 0]);
-  });
-  add(new THREE.BoxGeometry(0.1, 0.08, 1.0), M.pretoFosco, [-2.3, 0.3, 0]);
-  add(new THREE.PlaneGeometry(0.44, 0.144), M.placa, [-2.385, 0.58, 0], [0, -Math.PI / 2, 0]);
-  add(new THREE.CircleGeometry(0.075, 40), M.logo, [-2.392, 0.79, 0], [0, -Math.PI / 2, 0]);
-
-  // logo no capô
-  const logoCapo = new THREE.Group();
-  logoCapo.position.set(2.02, 0.968, 0);
-  logoCapo.rotation.z = -0.12;
-  add(new THREE.CircleGeometry(0.075, 40), M.logo, [0, 0, 0], [-Math.PI / 2, 0, -Math.PI / 2], logoCapo);
-  carro.add(logoCapo);
-
-  // detalhes laterais: retrovisores, maçanetas, frisos e saia
-  [-1, 1].forEach(l => {
-    add(new THREE.BoxGeometry(0.08, 0.035, 0.1), M.pretoFosco, [0.66, 1.06, l * 0.98]);
-    add(new THREE.SphereGeometry(0.1, 24, 16), M.pintura, [0.64, 1.09, l * 1.04]).scale.set(1.1, 0.55, 0.55);
-    add(new THREE.BoxGeometry(0.16, 0.025, 0.02), M.cromo, [-0.45, 0.92, l * 0.955]);
-    add(new THREE.BoxGeometry(0.008, 0.6, 0.006), M.pretoFosco, [0.79, 0.66, l * 0.951]);
-    add(new THREE.BoxGeometry(0.008, 0.6, 0.006), M.pretoFosco, [-0.8, 0.66, l * 0.951]);
-    add(new THREE.BoxGeometry(1.62, 0.07, 0.05), M.pretoFosco, [0, 0.27, l * 0.93]);
-  });
-
-  // antena "barbatana" com um lacinho da Kitty
-  add(new THREE.ConeGeometry(0.045, 0.12, 20), M.pretoBrilho, [-1.0, 1.52, 0]).scale.set(2.4, 1, 0.7);
-  const laco = new THREE.Group();
-  laco.position.set(-1.0, 1.62, 0);
-  [-1, 1].forEach(l => {
-    const aba = add(new THREE.SphereGeometry(0.06, 20, 14), M.laco, [l * 0.07, 0, 0], [0, 0, l * -0.3], laco);
-    aba.scale.set(1.3, 0.95, 0.5);
-  });
-  add(new THREE.SphereGeometry(0.03, 16, 12), M.laco, [0, 0, 0.01], null, laco);
-  carro.add(laco);
-
-  // rodas com raios em V, disco e pinça M azul
-  const rodas = [];
-  function criarRoda(lado) {
-    const roda = new THREE.Group();
-    const giro = new THREE.Group();
-    roda.add(giro);
-    const perfilPneu = [[0.27, -0.13], [0.35, -0.142], [0.39, -0.128], [0.404, -0.07], [0.404, 0.07], [0.39, 0.128], [0.35, 0.142], [0.27, 0.13]]
-      .map(([x, y]) => new THREE.Vector2(x, y));
-    add(new THREE.LatheGeometry(perfilPneu, 64), M.pneu, null, [Math.PI / 2, 0, 0], giro);
-    add(new THREE.CylinderGeometry(0.272, 0.272, 0.24, 48, 1, true), M.roda, null, [Math.PI / 2, 0, 0], giro).material.side = THREE.DoubleSide;
-    add(new THREE.TorusGeometry(0.266, 0.01, 8, 64), M.cromo, [0, 0, 0.115], null, giro);
-    const raioGeo = new THREE.BoxGeometry(0.25, 0.034, 0.03);
-    raioGeo.translate(0.135, 0, 0);
-    for (let i = 0; i < 5; i++) {
-      const a = (i / 5) * Math.PI * 2;
-      [-0.13, 0.13].forEach(k => add(raioGeo, M.roda, [0, 0, 0.1], [0, 0, a + k], giro));
-    }
-    add(new THREE.CylinderGeometry(0.07, 0.078, 0.05, 32), M.roda, [0, 0, 0.1], [Math.PI / 2, 0, 0], giro);
-    add(new THREE.CircleGeometry(0.038, 32), M.logo, [0, 0, 0.127], null, giro);
-    add(new THREE.CylinderGeometry(0.21, 0.21, 0.022, 48), M.disco, [0, 0, -0.01], [Math.PI / 2, 0, 0], giro);
-    add(new THREE.BoxGeometry(0.11, 0.17, 0.07), M.pinca, [0.12, 0.13, 0.02], [0, 0, -0.75], roda);
-    roda.rotation.y = lado > 0 ? 0 : Math.PI;
-    roda.userData.sentido = lado > 0 ? -1 : 1;
-    roda.userData.giro = giro;
-    return roda;
-  }
-  [[-1.35, 1], [1.35, 1], [-1.35, -1], [1.35, -1]].forEach(([x, l]) => {
-    const r = criarRoda(l);
-    r.position.set(x, 0.404, l * 0.79);
-    carro.add(r);
-    rodas.push(r);
-  });
-
-  // faróis de verdade (iluminam o chão quando ligados)
-  const fachos = [-0.6, 0.6].map(z => {
-    const s = new THREE.SpotLight(0xe6f1ff, 0, 12, 0.42, 0.7, 1);
-    s.position.set(2.4, 0.74, z);
-    s.target.position.set(7, 0, z * 1.5);
-    carro.add(s, s.target);
-    return s;
-  });
-
-  /* ---------- partículas de luz (bokeh) ---------- */
-  const N = 220;
-  const pos = new Float32Array(N * 3);
-  const vel = new Float32Array(N);
-  for (let i = 0; i < N; i++) {
-    const a = Math.random() * Math.PI * 2, r = 3 + Math.random() * 9;
-    pos[i * 3] = Math.cos(a) * r;
-    pos[i * 3 + 1] = Math.random() * 7;
-    pos[i * 3 + 2] = Math.sin(a) * r;
-    vel[i] = 0.08 + Math.random() * 0.25;
-  }
-  const pGeo = new THREE.BufferGeometry();
-  pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const particulas = new THREE.Points(pGeo, new THREE.PointsMaterial({
-    size: 0.09, color: 0xffb8cc, transparent: true, opacity: 0.7, depthWrite: false,
-    blending: THREE.AdditiveBlending,
-    map: gradienteRadial([[0, 'rgba(255,255,255,1)'], [0.3, 'rgba(255,255,255,0.5)'], [1, 'rgba(255,255,255,0)']], 64),
-  }));
-  scene.add(particulas);
-
-  /* ---------- câmera: arrastar para girar ---------- */
-  const alvo = new THREE.Vector3(0, 0.75, 0);
-  let theta = 0.75, phi = 1.28, raioBase = 10, raio = 18;
-  let arrastando = false, ultX = 0, ultY = 0, ultimoToque = -1e9, movido = 0;
-  let velTheta = 0;
-  canvas.addEventListener('pointerdown', e => {
-    arrastando = true; movido = 0; ultX = e.clientX; ultY = e.clientY;
-    canvas.setPointerCapture(e.pointerId);
-  });
-  canvas.addEventListener('pointermove', e => {
-    if (!arrastando) return;
-    const dx = e.clientX - ultX, dy = e.clientY - ultY;
-    movido += Math.abs(dx) + Math.abs(dy);
-    velTheta = -dx * 0.006;
-    theta += velTheta;
-    phi = Math.min(1.48, Math.max(0.75, phi - dy * 0.004));
-    ultX = e.clientX; ultY = e.clientY;
-    ultimoToque = performance.now();
-  });
-  canvas.addEventListener('pointerup', e => { arrastando = false; if (movido < 6) toque(e); });
-  canvas.addEventListener('pointercancel', () => { arrastando = false; });
-
-  const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
-  function toque(e) {
-    const r = canvas.getBoundingClientRect();
-    mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-    ray.setFromCamera(mouse, camera);
-    if (ray.intersectObject(carro, true).length) {
-      explodir(e.clientX, e.clientY, 14);
-      somSino();
-      piscar = 1;
-    }
-  }
-
-  /* ---------- painel ---------- */
-  const corAlvo = new THREE.Color(0xd9849f);
-  let metalAlvo = 0.55;
-  let ligado = false, acelerando = 0, velRoda = 0, piscar = 0;
-  document.querySelectorAll('.cor').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('.cor').forEach(x => x.classList.remove('ativa'));
-    b.classList.add('ativa');
-    corAlvo.set(b.dataset.cor);
-    metalAlvo = parseFloat(b.dataset.metal);
-    document.getElementById('nomeCor').textContent = b.dataset.nome;
-  }));
-  const btnPartida = document.getElementById('btnPartida');
-  btnPartida.addEventListener('click', () => {
-    ligado = !ligado;
-    btnPartida.classList.toggle('ligado', ligado);
-    btnPartida.querySelector('span').textContent = ligado ? 'Desligar' : 'Dar partida';
-    if (ligado) somPartida();
-  });
-  document.getElementById('btnAcelerar').addEventListener('click', () => {
-    if (!ligado) { ligado = true; btnPartida.classList.add('ligado'); btnPartida.querySelector('span').textContent = 'Desligar'; }
-    acelerando = 2.6;
-    somAcelerar();
-  });
-  document.getElementById('btnBuzina').addEventListener('click', e => {
-    somBuzina();
-    piscar = 1;
-    const r = e.currentTarget.getBoundingClientRect();
-    explodir(r.left + r.width / 2, r.top, 10);
-  });
-
-  /* ---------- tamanho ---------- */
-  function redimensionar() {
-    const w = canvas.clientWidth, h = canvas.clientHeight;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    const prop = w / h;
-    raioBase = prop < 0.6 ? 25 : prop < 0.8 ? 21 : prop < 1.2 ? 18 : 12.5;
-    alvo.y = prop < 0.8 ? -0.3 : prop < 1.2 ? 0.3 : 0.75;
-    camera.updateProjectionMatrix();
-  }
-  window.addEventListener('resize', redimensionar);
-  redimensionar();
-
-  let visivel = true;
-  new IntersectionObserver(([en]) => { visivel = en.isIntersecting; }).observe(canvas);
-
-  /* ---------- loop ---------- */
-  const relogio = new THREE.Clock();
-  let t = 0, primeiroQuadro = true;
-  function quadro() {
-    requestAnimationFrame(quadro);
-    const dt = Math.min(relogio.getDelta(), 0.05);
-    if (!visivel) return;
-    t += dt;
-
-    // entrada cinematográfica + giro automático
-    raio += (raioBase - raio) * Math.min(1, dt * 1.4);
-    if (!arrastando) {
-      velTheta *= 0.94;
-      theta += velTheta;
-      if (performance.now() - ultimoToque > 3000) theta += dt * 0.12;
-    }
-
-    // pintura muda de cor suavemente
-    M.pintura.color.lerp(corAlvo, Math.min(1, dt * 4));
-    M.pintura.metalness += (metalAlvo - M.pintura.metalness) * Math.min(1, dt * 4);
-
-    // luzes
-    const alvoFarol = ligado ? 3.2 : 0.25;
-    M.farol.emissiveIntensity += (alvoFarol - M.farol.emissiveIntensity) * Math.min(1, dt * 6);
-    M.lanterna.emissiveIntensity += ((ligado ? 2.2 : 0.35) - M.lanterna.emissiveIntensity) * Math.min(1, dt * 6);
-    if (piscar > 0) {
-      piscar = Math.max(0, piscar - dt * 2);
-      const pisca = Math.sin(piscar * Math.PI * 4) > 0 ? 4 : 0.3;
-      M.farol.emissiveIntensity = Math.max(M.farol.emissiveIntensity, pisca);
-    }
-    fachos.forEach(f => { f.intensity += ((ligado ? 2.5 : 0) - f.intensity) * Math.min(1, dt * 5); });
-
-    // motor
-    if (acelerando > 0) { acelerando -= dt; velRoda = Math.min(velRoda + dt * 30, 40); }
-    else velRoda = Math.max(velRoda - dt * 12, 0);
-    rodas.forEach(r => { r.userData.giro.rotation.z += r.userData.sentido * velRoda * dt; });
-    const vibra = ligado ? Math.sin(t * 60) * 0.0025 : 0;
-    carro.position.y = vibra;
-    carro.rotation.z += ((acelerando > 0 ? 0.02 : 0) - carro.rotation.z) * Math.min(1, dt * 4);
-    laco.rotation.z = Math.sin(t * 2.2) * 0.08 + (acelerando > 0 ? Math.sin(t * 25) * 0.15 : 0);
-    aro.material.color.setHSL(0.95, 0.55, 0.74 + Math.sin(t * 2) * 0.05);
-    aro.scale.setScalar(1 + (velRoda / 40) * 0.04);
-
-    // partículas sobem devagar
-    const p = pGeo.attributes.position.array;
-    for (let i = 0; i < N; i++) {
-      p[i * 3 + 1] += vel[i] * dt;
-      if (p[i * 3 + 1] > 7) p[i * 3 + 1] = 0;
-    }
-    pGeo.attributes.position.needsUpdate = true;
-
-    camera.position.set(
-      alvo.x + raio * Math.sin(phi) * Math.cos(theta),
-      alvo.y + raio * Math.cos(phi),
-      alvo.z + raio * Math.sin(phi) * Math.sin(theta)
-    );
-    camera.lookAt(alvo);
-    renderer.render(scene, camera);
-
-    if (primeiroQuadro) {
-      primeiroQuadro = false;
-      canvas.classList.add('pronto');
-      carregando.classList.add('some');
-    }
-  }
-  quadro();
-})();
-
-/* =========================================================
    HELLO KITTY
    ========================================================= */
 (function kitty() {
@@ -717,7 +229,8 @@ function somSino() {
     el.setAttribute('role', 'button');
     el.innerHTML = `
       <div class="flip-inner">
-        <div class="face frente">
+        <div class="face frente" style="--g:${m.g}">
+          <span class="icone">${m.icone}</span>
           <span class="num">${String(i + 1).padStart(2, '0')}</span>
           <div><div class="tit">${m.tit}</div><div class="toque">Toque para ler</div></div>
         </div>
@@ -753,6 +266,439 @@ function somSino() {
     nao.style.display = 'none';
     chuva(80);
     somSino();
+  });
+})();
+
+/* =========================================================
+   FUNDO: partículas flutuantes + rastro do cursor
+   ========================================================= */
+(function fundo() {
+  const cv = document.getElementById('fundo');
+  const ctx = cv.getContext('2d');
+  const hero = document.getElementById('hero');
+  const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W, H, dpr, cores = ['#ff8fb3', '#ffc4a8', '#c9a7ff', '#ff5c8a'];
+  const flutuantes = [], rastro = [];
+  const mouse = { x: -999, y: -999 };
+
+  function tamanho() {
+    dpr = Math.min(devicePixelRatio, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  tamanho();
+  addEventListener('resize', tamanho);
+
+  const qtd = reduzido ? 0 : Math.round(Math.min(24, W / 55));
+  for (let i = 0; i < qtd; i++) flutuantes.push(novo(true));
+  function novo(inicio) {
+    return {
+      x: Math.random() * W, y: inicio ? Math.random() * H : H + 30,
+      r: 4 + Math.random() * 8, vy: 0.15 + Math.random() * 0.45,
+      fase: Math.random() * 6.28, giro: (Math.random() - 0.5) * 0.02, a: Math.random() * 6.28,
+      cor: Math.floor(Math.random() * 4), tipo: Math.random() < 0.55 ? 'c' : (Math.random() < 0.5 ? 'e' : 'b'),
+      op: 0.18 + Math.random() * 0.3, vx: 0,
+    };
+  }
+
+  function coracao(x, y, r, a) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(r / 16, r / 16);
+    ctx.beginPath();
+    ctx.moveTo(0, 6);
+    ctx.bezierCurveTo(-16, -6, -8, -18, 0, -9);
+    ctx.bezierCurveTo(8, -18, 16, -6, 0, 6);
+    ctx.fill(); ctx.restore();
+  }
+  function estrela(x, y, r, a) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a);
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const rr = i % 2 ? r * 0.28 : r;
+      const ang = i * Math.PI / 4;
+      ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr);
+    }
+    ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+
+  // paleta muda conforme a seção visível
+  const obs = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting && e.target.dataset.cores) cores = e.target.dataset.cores.split(',');
+  }), { threshold: 0.4 });
+  document.querySelectorAll('section[data-cores]').forEach(s => obs.observe(s));
+
+  let ultimo = 0;
+  if (matchMedia('(pointer: fine)').matches && !reduzido) {
+    addEventListener('pointermove', e => {
+      mouse.x = e.clientX; mouse.y = e.clientY;
+      const agora = performance.now();
+      if (agora - ultimo < 28 || !cv.classList.contains('ativo')) return;
+      ultimo = agora;
+      rastro.push({
+        x: e.clientX, y: e.clientY, vx: (Math.random() - 0.5) * 1.2, vy: -0.4 - Math.random() * 0.8,
+        r: 3 + Math.random() * 5, vida: 1, cor: cores[Math.floor(Math.random() * cores.length)],
+        a: Math.random() * 6.28, tipo: Math.random() < 0.5 ? 'c' : 'e',
+      });
+    });
+  }
+
+  function loop() {
+    requestAnimationFrame(loop);
+    const ativo = hero.getBoundingClientRect().bottom < H * 0.35;
+    cv.classList.toggle('ativo', ativo);
+    if (!ativo && !rastro.length) return;
+    ctx.clearRect(0, 0, W, H);
+    for (const p of flutuantes) {
+      p.fase += 0.012; p.a += p.giro;
+      // repulsão suave do cursor
+      const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
+      if (d2 < 14000) { p.vx += dx / Math.sqrt(d2 + 1) * 0.35; }
+      p.vx *= 0.94;
+      p.x += Math.sin(p.fase) * 0.35 + p.vx;
+      p.y -= p.vy;
+      if (p.y < -30) Object.assign(p, novo(false));
+      ctx.globalAlpha = p.op;
+      ctx.fillStyle = cores[p.cor % cores.length];
+      if (p.tipo === 'c') coracao(p.x, p.y, p.r, Math.sin(p.fase) * 0.3);
+      else if (p.tipo === 'e') estrela(p.x, p.y, p.r * 0.8, p.a);
+      else { ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.45, 0, 6.28); ctx.fill(); }
+    }
+    for (let i = rastro.length - 1; i >= 0; i--) {
+      const p = rastro[i];
+      p.x += p.vx; p.y += p.vy; p.vida -= 0.022; p.a += 0.05;
+      if (p.vida <= 0) { rastro.splice(i, 1); continue; }
+      ctx.globalAlpha = p.vida * 0.9;
+      ctx.fillStyle = p.cor;
+      ctx.shadowColor = p.cor; ctx.shadowBlur = 8;
+      if (p.tipo === 'c') coracao(p.x, p.y, p.r * p.vida + 2, 0); else estrela(p.x, p.y, p.r * p.vida + 2, p.a);
+      ctx.shadowBlur = 0;
+    }
+    ctx.globalAlpha = 1;
+  }
+  loop();
+})();
+
+/* =========================================================
+   PROGRESSO DE ROLAGEM + PONTOS DE NAVEGAÇÃO
+   ========================================================= */
+(function navegacao() {
+  const barra = document.getElementById('progresso');
+  const pontos = document.getElementById('pontos');
+  const links = [...pontos.querySelectorAll('a')];
+  function rolar() {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    barra.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+    pontos.classList.toggle('ativo', scrollY > innerHeight * 0.6);
+  }
+  addEventListener('scroll', rolar, { passive: true });
+  rolar();
+  const obs = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    links.forEach(a => a.classList.toggle('atual', a.getAttribute('href') === '#' + e.target.id));
+  }), { rootMargin: '-45% 0px -45% 0px' });
+  links.forEach(a => { const s = document.querySelector(a.getAttribute('href')); if (s) obs.observe(s); });
+})();
+
+/* =========================================================
+   KITTY: lacinhos flutuando
+   ========================================================= */
+(function lacinhos() {
+  const palco = document.querySelector('.kitty-palco');
+  [['🎀', '4%', '8%', 0], ['💗', '88%', '14%', -1.5], ['✨', '6%', '78%', -3], ['🎀', '86%', '80%', -2.2], ['💕', '48%', '-4%', -4]]
+    .forEach(([e, x, y, d]) => {
+      const s = document.createElement('span');
+      s.className = 'mini-laco'; s.textContent = e;
+      s.style.left = x; s.style.top = y; s.style.animationDelay = d + 's';
+      palco.appendChild(s);
+    });
+})();
+
+/* =========================================================
+   NOSSO TEMPO
+   ========================================================= */
+(function tempo() {
+  const inicio = new Date(DATA_INICIO).getTime();
+  const els = {};
+  document.querySelectorAll('#relogio [data-u]').forEach(el => els[el.dataset.u] = el);
+  const pens = document.getElementById('pensamentos');
+  const sol = document.getElementById('porDoSol');
+  const fmt = n => n.toLocaleString('pt-BR');
+  function por(el, v) {
+    if (el.textContent === v) return;
+    el.textContent = v;
+    el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+  }
+  function atualizar() {
+    const ms = Math.max(0, Date.now() - inicio);
+    const s = Math.floor(ms / 1000);
+    por(els.dias, fmt(Math.floor(s / 86400)));
+    por(els.horas, String(Math.floor(s % 86400 / 3600)).padStart(2, '0'));
+    por(els.min, String(Math.floor(s % 3600 / 60)).padStart(2, '0'));
+    por(els.seg, String(s % 60).padStart(2, '0'));
+    pens.textContent = fmt(Math.floor(s / 90)); // uma vez a cada minuto e meio, no mínimo
+    sol.textContent = fmt(Math.floor(s / 86400));
+  }
+  atualizar();
+  setInterval(atualizar, 1000);
+
+  const btn = document.getElementById('coracaoBatida');
+  const bat = document.getElementById('batidas');
+  let n = 0;
+  btn.addEventListener('click', e => {
+    n++;
+    bat.textContent = fmt(n);
+    btn.classList.remove('forte'); void btn.offsetWidth; btn.classList.add('forte');
+    const r = btn.getBoundingClientRect();
+    explodir(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2, 6 + Math.min(n, 14));
+    const a = audio(), t = a.currentTime;
+    [0, 0.14].forEach((d, i) => {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(i ? 70 : 85, t + d); o.frequency.exponentialRampToValueAtTime(40, t + d + 0.15);
+      g.gain.setValueAtTime(0.0001, t + d); g.gain.exponentialRampToValueAtTime(0.35, t + d + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.18);
+      o.connect(g); g.connect(a.destination); o.start(t + d); o.stop(t + d + 0.2);
+    });
+    if (n % 25 === 0) chuva(30);
+  });
+})();
+
+/* =========================================================
+   CÉU ESTRELADO / CONSTELAÇÃO DE CORAÇÃO
+   ========================================================= */
+(function ceu() {
+  const sec = document.getElementById('ceu');
+  const cv = document.getElementById('ceuCanvas');
+  const ctx = cv.getContext('2d');
+  const txt = document.getElementById('desejoTexto');
+  const caixa = document.getElementById('desejo');
+  const elAchadas = document.getElementById('achadas');
+  const barra = document.getElementById('ceuBarra');
+  const N = DESEJOS_ESTRELAS.length;
+  document.getElementById('totalEstrelas').textContent = N;
+  let W, H, dpr, fundo = [], especiais = [], cadentes = [], achadas = 0, completo = 0, visivel = false;
+  const mouse = { x: 0.5, y: 0.5, px: -999, py: -999 };
+
+  function montar() {
+    dpr = Math.min(devicePixelRatio, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    fundo = Array.from({ length: Math.round(W * H / 2600) }, () => ({
+      x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.3 + 0.2,
+      f: Math.random() * 6.28, v: 0.01 + Math.random() * 0.03, z: Math.random(),
+      cor: ['#ffffff', '#c9d8ff', '#ffd6f0', '#fff1b8'][Math.floor(Math.random() * 4)],
+    }));
+    // estrelas especiais desenhando um coração
+    // o coração ocupa o espaço livre entre o contador e a caixa de desejo
+    const rc = cv.getBoundingClientRect();
+    const topo = document.querySelector('.ceu-hud').getBoundingClientRect().bottom - rc.top + 30;
+    const base = caixa.getBoundingClientRect().top - rc.top - 30;
+    const esc = Math.max(5, Math.min(W * 0.026, (base - topo) / 29));
+    const cx = W / 2, cy = (topo + base) / 2 - 3 * esc;
+    const antigas = especiais;
+    especiais = DESEJOS_ESTRELAS.map((d, i) => {
+      const t = Math.PI * 2 * i / N;
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+      return { x: cx + x * esc, y: cy - y * esc, f: i, achada: antigas[i] ? antigas[i].achada : false, brilho: 0, d };
+    });
+  }
+  montar();
+  addEventListener('resize', montar);
+
+  new IntersectionObserver(es => { visivel = es[0].isIntersecting; if (visivel) setTimeout(montar, 1200); }).observe(sec);
+
+  cv.addEventListener('pointermove', e => {
+    const r = cv.getBoundingClientRect();
+    mouse.px = e.clientX - r.left; mouse.py = e.clientY - r.top;
+    mouse.x = mouse.px / W; mouse.y = mouse.py / H;
+    cv.style.cursor = perto(mouse.px, mouse.py) ? 'pointer' : 'crosshair';
+  });
+  cv.addEventListener('pointerleave', () => { mouse.px = mouse.py = -999; });
+  function perto(x, y) {
+    return especiais.find(s => (s.x - x) ** 2 + (s.y - y) ** 2 < 30 * 30);
+  }
+  cv.addEventListener('click', e => {
+    const r = cv.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    const s = perto(x, y);
+    if (!s) { // clique no vazio: estrela cadente
+      cadentes.push({ x, y, vx: -6 - Math.random() * 4, vy: 3 + Math.random() * 2, vida: 1 });
+      return;
+    }
+    s.brilho = 1;
+    mostrar(s.d);
+    sino(s.f);
+    explodir(e.clientX, e.clientY, 8);
+    if (!s.achada) {
+      s.achada = true;
+      achadas++;
+      elAchadas.textContent = achadas;
+      barra.style.width = achadas / N * 100 + '%';
+      if (achadas === N) setTimeout(final, 900);
+    }
+  });
+  function mostrar(t) {
+    txt.style.opacity = 0;
+    caixa.classList.add('novo');
+    setTimeout(() => { txt.textContent = t; txt.style.opacity = 1; caixa.classList.remove('novo'); }, 280);
+  }
+  function sino(i) {
+    const a = audio(), t = a.currentTime;
+    const notas = [523, 587, 659, 784, 880, 988, 1046, 1175, 1318, 1568];
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = 'triangle'; o.frequency.value = notas[i % notas.length];
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 1.5);
+  }
+  function final() {
+    caixa.classList.add('completo');
+    mostrar(MENSAGEM_CONSTELACAO);
+    chuva(50);
+    somSino();
+  }
+
+  function estrela4(x, y, r) {
+    ctx.beginPath();
+    ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.quadraticCurveTo(x, y, x, y + r); ctx.quadraticCurveTo(x, y, x - r, y);
+    ctx.quadraticCurveTo(x, y, x, y - r); ctx.fill();
+  }
+
+  let t = 0;
+  function quadro() {
+    requestAnimationFrame(quadro);
+    if (!visivel) return;
+    t += 0.016;
+    ctx.clearRect(0, 0, W, H);
+    const ox = (mouse.x - 0.5) * 24, oy = (mouse.y - 0.5) * 24;
+    // céu de fundo com paralaxe
+    for (const s of fundo) {
+      s.f += s.v;
+      ctx.globalAlpha = 0.35 + Math.sin(s.f) * 0.35 + 0.3 * s.z;
+      ctx.fillStyle = s.cor;
+      ctx.beginPath(); ctx.arc(s.x + ox * s.z, s.y + oy * s.z, s.r, 0, 6.28); ctx.fill();
+    }
+    // linhas da constelação
+    if (completo < 1 && achadas === N) completo = Math.min(1, completo + 0.01);
+    ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+    for (let i = 0; i < N; i++) {
+      const a = especiais[i], b = especiais[(i + 1) % N];
+      if (!(a.achada && b.achada)) continue;
+      ctx.globalAlpha = 0.55 + completo * 0.4;
+      ctx.strokeStyle = completo > 0 ? `rgba(255, 190, 220, 1)` : 'rgba(201, 216, 255, 1)';
+      ctx.shadowColor = '#ff9ec4'; ctx.shadowBlur = 6 + completo * 14;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+    // brilho rosa no centro quando completa
+    if (completo > 0) {
+      const g = ctx.createRadialGradient(W / 2, H * 0.5, 0, W / 2, H * 0.5, Math.min(W, H) * 0.4);
+      g.addColorStop(0, `rgba(255, 111, 165, ${0.28 * completo})`); g.addColorStop(1, 'rgba(255, 111, 165, 0)');
+      ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    }
+    // estrelas especiais
+    for (const s of especiais) {
+      s.brilho *= 0.95;
+      const pulso = 0.5 + Math.sin(t * 2.2 + s.f) * 0.5;
+      const hover = (s.x - mouse.px) ** 2 + (s.y - mouse.py) ** 2 < 900 ? 1 : 0;
+      const r = (s.achada ? 9 : 6 + pulso * 4) + hover * 4 + s.brilho * 10;
+      const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r * 3.2);
+      g.addColorStop(0, s.achada ? 'rgba(255, 214, 240, .9)' : 'rgba(255, 241, 184, .8)');
+      g.addColorStop(1, 'rgba(255, 241, 184, 0)');
+      ctx.globalAlpha = 0.6 + pulso * 0.4;
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, r * 3.2, 0, 6.28); ctx.fill();
+      ctx.globalAlpha = 1; ctx.fillStyle = '#fff';
+      estrela4(s.x, s.y, r);
+    }
+    // estrelas cadentes (aleatórias + cliques)
+    if (Math.random() < 0.006) cadentes.push({ x: Math.random() * W * 0.6 + W * 0.4, y: Math.random() * H * 0.3, vx: -7, vy: 3, vida: 1 });
+    for (let i = cadentes.length - 1; i >= 0; i--) {
+      const c = cadentes[i];
+      c.x += c.vx; c.y += c.vy; c.vida -= 0.018;
+      if (c.vida <= 0) { cadentes.splice(i, 1); continue; }
+      const g = ctx.createLinearGradient(c.x, c.y, c.x - c.vx * 12, c.y - c.vy * 12);
+      g.addColorStop(0, `rgba(255,255,255,${c.vida})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.strokeStyle = g; ctx.lineWidth = 2; ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x - c.vx * 12, c.y - c.vy * 12); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  quadro();
+})();
+
+/* =========================================================
+   VALES / RASPADINHAS
+   ========================================================= */
+(function vales() {
+  const lista = document.getElementById('listaVales');
+  VALES.forEach(v => {
+    const el = document.createElement('div');
+    el.className = 'vale';
+    el.innerHTML = `
+      <div class="vale-premio" style="--g:${v.g}">
+        <span class="emoji">${v.emoji}</span>
+        <small>Vale</small>
+        <strong>${v.tit}</strong>
+        <em>${v.obs}</em>
+      </div>
+      <canvas aria-label="Raspadinha: raspe para revelar"></canvas>`;
+    lista.appendChild(el);
+    const cv = el.querySelector('canvas');
+    const ctx = cv.getContext('2d');
+    let pronto = false, raspando = false, ultimo = null, cont = 0;
+
+    function pintar() {
+      const r = cv.getBoundingClientRect();
+      if (!r.width) return;
+      const dpr = Math.min(devicePixelRatio, 2);
+      cv.width = r.width * dpr; cv.height = r.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const g = ctx.createLinearGradient(0, 0, r.width, r.height);
+      g.addColorStop(0, '#e9e4ef'); g.addColorStop(0.45, '#c9c2d4'); g.addColorStop(0.55, '#f4f1f8'); g.addColorStop(1, '#b8b0c6');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, r.width, r.height);
+      // padrão de corações prateados
+      ctx.fillStyle = 'rgba(255,255,255,.45)';
+      ctx.font = '16px serif';
+      for (let y = 18; y < r.height; y += 30) for (let x = (y / 30 % 2) * 18 + 10; x < r.width; x += 36) ctx.fillText('♥', x, y);
+      ctx.fillStyle = 'rgba(80, 60, 100, .75)';
+      ctx.textAlign = 'center';
+      ctx.font = '600 13px Inter, sans-serif';
+      ctx.fillText('RASPE AQUI', r.width / 2, r.height / 2 - 4);
+      ctx.font = 'italic 500 22px "Cormorant Garamond", serif';
+      ctx.fillText('uma surpresa ♥', r.width / 2, r.height / 2 + 22);
+      ctx.globalCompositeOperation = 'destination-out';
+      pronto = true;
+    }
+    requestAnimationFrame(pintar);
+    document.fonts && document.fonts.ready.then(() => { if (!el.classList.contains('raspado')) { ctx.globalCompositeOperation = 'source-over'; pintar(); } });
+
+    function pos(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    function raspar(p) {
+      ctx.lineWidth = 38; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath();
+      if (ultimo) ctx.moveTo(ultimo.x, ultimo.y); else ctx.moveTo(p.x - 0.1, p.y);
+      ctx.lineTo(p.x, p.y); ctx.stroke();
+      ultimo = p;
+      if (++cont % 8 === 0) verificar();
+    }
+    function verificar() {
+      const d = ctx.getImageData(0, 0, cv.width, cv.height).data;
+      let vazio = 0, total = 0;
+      for (let i = 3; i < d.length; i += 64) { total++; if (d[i] === 0) vazio++; }
+      if (vazio / total > 0.5) revelar();
+    }
+    function revelar() {
+      if (el.classList.contains('raspado')) return;
+      el.classList.add('raspado');
+      const r = el.getBoundingClientRect();
+      explodir(r.left + r.width / 2, r.top + r.height / 2, 16);
+      somSino();
+    }
+    cv.addEventListener('pointerdown', e => { if (!pronto) return; raspando = true; ultimo = null; try { cv.setPointerCapture(e.pointerId); } catch (_) {} raspar(pos(e)); });
+    cv.addEventListener('pointermove', e => { if (raspando) raspar(pos(e)); });
+    const parar = () => { raspando = false; ultimo = null; };
+    cv.addEventListener('pointerup', parar);
+    cv.addEventListener('pointercancel', parar);
   });
 })();
 

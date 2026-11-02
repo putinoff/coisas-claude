@@ -12,16 +12,30 @@
 </head>
 <body>
 
+<div class="progresso" id="progresso" aria-hidden="true"></div>
+<canvas id="fundo" aria-hidden="true"></canvas>
+<nav class="pontos" id="pontos" aria-label="Seções">
+  <a href="#kitty" data-nome="Kitty"></a>
+  <a href="#tempo" data-nome="Nosso tempo"></a>
+  <a href="#carta" data-nome="Carta"></a>
+  <a href="#motivos" data-nome="Motivos"></a>
+  <a href="#ceu" data-nome="Constelação"></a>
+  <a href="#vales" data-nome="Vales"></a>
+  <a href="#final" data-nome="Pra você"></a>
+</nav>
+
 <!-- ================= HERO / SHOWROOM 3D ================= -->
 <header id="hero">
-  <canvas id="scene" aria-label="BMW em 3D girando num showroom"></canvas>
+  <canvas id="scene" aria-label="Carro de luxo em 3D girando num showroom"></canvas>
 
   <nav class="nav">
     <a href="#hero" class="marca">M<span>♥</span>L</a>
     <ul>
       <li><a href="#kitty">Kitty</a></li>
+      <li><a href="#tempo">Tempo</a></li>
       <li><a href="#carta">Carta</a></li>
-      <li><a href="#motivos">Motivos</a></li>
+      <li><a href="#ceu">Estrelas</a></li>
+      <li><a href="#vales">Vales</a></li>
       <li><a href="#final">Pra você</a></li>
     </ul>
   </nav>
@@ -32,46 +46,56 @@
     <p class="hero-sub">Feita sob medida, com acabamento em amor.</p>
   </div>
 
-  <div class="carregando" id="carregando"><span></span>Preparando o showroom…</div>
+  <div class="carregando" id="carregando"><span></span><b>Preparando o showroom…</b></div>
 
-  <div class="painel" id="painel">
-    <div class="painel-specs">
-      <div><small>Potência</small><strong>∞ cv</strong><em>de amor</em></div>
-      <div><small>0–100 de saudade</small><strong>2,1 s</strong><em>depois de ir embora</em></div>
-      <div><small>Origem</small><strong>Coração</strong><em>do Lucas</em></div>
-    </div>
-    <div class="painel-cor">
-      <small>Pintura · <span id="nomeCor">Rosa Mariana</span></small>
-      <div class="cores" id="cores">
-        <button class="cor ativa" data-cor="#d9849f" data-metal="0.55" data-nome="Rosa Mariana" style="--c:#d9849f" aria-label="Rosa Mariana"></button>
-        <button class="cor" data-cor="#1a4fa8" data-metal="0.7" data-nome="Portimão Blue" style="--c:#1a4fa8" aria-label="Portimão Blue"></button>
-        <button class="cor" data-cor="#0b0c10" data-metal="0.6" data-nome="Black Sapphire" style="--c:#0b0c10" aria-label="Black Sapphire"></button>
-        <button class="cor" data-cor="#eceef0" data-metal="0.1" data-nome="Alpine White" style="--c:#eceef0" aria-label="Alpine White"></button>
-        <button class="cor" data-cor="#8a0f22" data-metal="0.65" data-nome="Melbourne Red" style="--c:#8a0f22" aria-label="Melbourne Red"></button>
+  <div class="controles">
+    <p class="dica">Arraste para girar · toque no carro · escolha outro na garagem</p>
+    <div class="garagem" id="garagem" role="tablist" aria-label="Escolha o carro"></div>
+    <div class="painel" id="painel">
+      <div class="painel-carro">
+        <small id="marcaCarro">BMW</small>
+        <strong id="nomeCarro">M4 CSL</strong>
+        <em id="fraseCarro">A favorita da casa, com a cor dela.</em>
+      </div>
+      <div class="painel-specs">
+        <div><small>Potência</small><strong id="specCv">550 cv</strong></div>
+        <div><small>0–100 km/h</small><strong id="specZero">3,7 s</strong></div>
+        <div><small>Vel. máxima</small><strong id="specVmax">307 km/h</strong></div>
+      </div>
+      <div class="painel-cor">
+        <small>Pintura · <span id="nomeCor">Rosa Mariana</span></small>
+        <div class="cores" id="cores">
+          <button class="cor ativa" data-cor="#d9849f" data-metal="0.55" data-nome="Rosa Mariana" style="--c:#d9849f" aria-label="Rosa Mariana"></button>
+          <button class="cor" data-cor="#1a4fa8" data-metal="0.7" data-nome="Portimão Blue" style="--c:#1a4fa8" aria-label="Portimão Blue"></button>
+          <button class="cor" data-cor="#0b0c10" data-metal="0.6" data-nome="Black Sapphire" style="--c:#0b0c10" aria-label="Black Sapphire"></button>
+          <button class="cor" data-cor="#eceef0" data-metal="0.1" data-nome="Alpine White" style="--c:#eceef0" aria-label="Alpine White"></button>
+          <button class="cor" data-cor="#8a0f22" data-metal="0.65" data-nome="Rosso Corsa" style="--c:#8a0f22" aria-label="Rosso Corsa"></button>
+          <button class="cor" data-cor="#e8b100" data-metal="0.45" data-nome="Giallo Modena" style="--c:#e8b100" aria-label="Giallo Modena"></button>
+          <button class="cor" data-cor="#0f5c47" data-metal="0.7" data-nome="Verde Esmeralda" style="--c:#0f5c47" aria-label="Verde Esmeralda"></button>
+        </div>
+      </div>
+      <div class="painel-acoes">
+        <button class="btn-vidro" id="btnPartida">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5"/></svg>
+          <span>Dar partida</span>
+        </button>
+        <button class="btn-vidro" id="btnAcelerar">
+          <svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>
+          <span>Acelerar</span>
+        </button>
+        <button class="btn-vidro" id="btnBuzina">
+          <svg viewBox="0 0 24 24"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
+          <span>Buzina</span>
+        </button>
       </div>
     </div>
-    <div class="painel-acoes">
-      <button class="btn-vidro" id="btnPartida">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5"/></svg>
-        <span>Dar partida</span>
-      </button>
-      <button class="btn-vidro" id="btnAcelerar">
-        <svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>
-        <span>Acelerar</span>
-      </button>
-      <button class="btn-vidro" id="btnBuzina">
-        <svg viewBox="0 0 24 24"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
-        <span>Buzina</span>
-      </button>
-    </div>
   </div>
-
-  <p class="dica">Arraste para girar · toque no carro</p>
 </header>
 
 <main>
   <!-- ================= HELLO KITTY ================= -->
-  <section class="secao" id="kitty">
+  <section class="secao tema-kitty" id="kitty" data-cores="#ff8fb3,#ffc4a8,#c9a7ff,#ff5c8a">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="duas-colunas">
       <div class="texto revelar">
         <p class="eyebrow escuro">01 — A favorita dela</p>
@@ -108,10 +132,39 @@
     </div>
   </section>
 
-  <!-- ================= CARTA ================= -->
-  <section class="secao secao-blush" id="carta">
+
+  <!-- ================= NOSSO TEMPO ================= -->
+  <section class="secao tema-tempo" id="tempo" data-cores="#ffffff,#ffe1ec,#fff2c9,#e7d6ff">
+    <div class="tempo-fundo" aria-hidden="true"></div>
     <div class="cabecalho revelar">
-      <p class="eyebrow escuro">02 — Uma carta</p>
+      <p class="eyebrow">02 — Nosso tempo</p>
+      <h2>Cada segundo <em>contando.</em></h2>
+      <p class="cabecalho-sub claro">Desde o dia em que tudo começou, o relógio não parou — e nem eu de pensar em você.</p>
+    </div>
+    <div class="relogio revelar" id="relogio">
+      <div class="bloco"><strong data-u="dias">0</strong><small>dias</small></div>
+      <div class="bloco"><strong data-u="horas">00</strong><small>horas</small></div>
+      <div class="bloco"><strong data-u="min">00</strong><small>minutos</small></div>
+      <div class="bloco"><strong data-u="seg">00</strong><small>segundos</small></div>
+    </div>
+    <div class="tempo-extras revelar">
+      <button class="coracao-batida" id="coracaoBatida" aria-label="Fazer o coração bater">
+        <svg viewBox="0 0 32 29"><path d="M16 28.5S1 19.6 1 9.3C1 4.6 4.7 1 9.2 1c2.8 0 5.3 1.5 6.8 3.7C17.5 2.5 20 1 22.8 1 27.3 1 31 4.6 31 9.3 31 19.6 16 28.5 16 28.5z"/></svg>
+      </button>
+      <div class="estat">
+        <div><strong id="batidas">0</strong><small>batidas por você · toque no coração</small></div>
+        <div><strong id="pensamentos">0</strong><small>vezes que pensei em você*</small></div>
+        <div><strong id="porDoSol">0</strong><small>pores do sol desde então</small></div>
+      </div>
+    </div>
+    <p class="nota revelar">*estimativa extremamente conservadora</p>
+  </section>
+
+  <!-- ================= CARTA ================= -->
+  <section class="secao tema-carta" id="carta" data-cores="#ff7aa2,#ffcf8a,#ffb3c7,#e86a92">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="cabecalho revelar">
+      <p class="eyebrow escuro">03 — Uma carta</p>
       <h2>Escrevi <em>pra você.</em></h2>
     </div>
     <div class="carta-area revelar">
@@ -128,18 +181,49 @@
   </section>
 
   <!-- ================= MOTIVOS ================= -->
-  <section class="secao" id="motivos">
+  <section class="secao tema-motivos" id="motivos" data-cores="#b388ff,#ff8fb3,#7fd8ff,#ffb86b">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="cabecalho revelar">
-      <p class="eyebrow escuro">03 — Motivos</p>
+      <p class="eyebrow escuro">04 — Motivos</p>
       <h2>Por que eu <em>te amo.</em></h2>
       <p class="cabecalho-sub">Seis, de uma lista que não tem fim. Toque em cada cartão.</p>
     </div>
     <div class="grade revelar" id="grade"></div>
   </section>
 
+
+  <!-- ================= CÉU / CONSTELAÇÃO ================= -->
+  <section class="secao tema-ceu" id="ceu" data-cores="#ffffff,#c9d8ff,#ffd6f0,#fff1b8">
+    <canvas id="ceuCanvas" aria-label="Céu estrelado interativo"></canvas>
+    <div class="ceu-conteudo">
+      <div class="cabecalho revelar">
+        <p class="eyebrow">05 — Constelação</p>
+        <h2>Escrito nas <em>estrelas.</em></h2>
+        <p class="cabecalho-sub claro">Algumas estrelas brilham mais forte. Encontre todas e veja o que elas desenham.</p>
+      </div>
+      <div class="ceu-hud revelar">
+        <span><b id="achadas">0</b> / <b id="totalEstrelas">12</b> estrelas</span>
+        <div class="ceu-barra"><i id="ceuBarra"></i></div>
+      </div>
+      <div class="desejo" id="desejo" aria-live="polite"><span>✦</span><p id="desejoTexto">Toque nas estrelas que piscam.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= VALES ================= -->
+  <section class="secao tema-vales" id="vales" data-cores="#ff9a8b,#ffcf71,#ff6fa5,#9be7d8">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="cabecalho revelar">
+      <p class="eyebrow escuro">06 — Raspadinhas</p>
+      <h2>Vales <em>premiados.</em></h2>
+      <p class="cabecalho-sub">Todas premiadas, claro. Raspe com o dedo (ou o mouse) para descobrir.</p>
+    </div>
+    <div class="vales revelar" id="listaVales"></div>
+  </section>
+
   <!-- ================= FINAL ================= -->
-  <section class="secao secao-noite" id="final">
-    <p class="eyebrow">04 — Uma pergunta</p>
+  <section class="secao secao-noite tema-final" id="final" data-cores="#ff6fa5,#c9a7ff,#ffd27a,#ff9ec4">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <p class="eyebrow">07 — Uma pergunta</p>
     <h2 class="pergunta">Você aceita ser minha <em>co-piloto</em> em todas as estradas da vida?</h2>
     <div class="botoes-final">
       <button class="btn-principal" id="btnSim">Sim, aceito</button>
@@ -152,9 +236,27 @@
 <footer>
   <span class="marca">M<span>♥</span>L</span>
   <p>Feito à mão, só pra Mariana · 2026</p>
+  <details class="creditos">
+    <summary>Créditos dos modelos 3D</summary>
+    <ul>
+      <li><a href="https://sketchfab.com/3d-models/bmw-m4-csl-2023-26d05968e63b4fc28205cbb9abb0ea41" target="_blank" rel="noopener">“BMW M4 CSL 2023”</a> por Black Snow · CC BY 4.0 (otimizado)</li>
+      <li><a href="https://sketchfab.com/3d-models/free-porsche-911-carrera-4s-d01b254483794de3819786d93e0e1ebf" target="_blank" rel="noopener">“(FREE) Porsche 911 Carrera 4S”</a> por Karol Miklas · CC BY-SA 4.0</li>
+      <li>“Ferrari 458 Italia” por vicent091036, via <a href="https://github.com/mrdoob/three.js" target="_blank" rel="noopener">exemplos do three.js</a></li>
+      <li><a href="https://sketchfab.com/3d-models/lamborghini-urus-2650599973b649ddb4460ff6c03e4aa2" target="_blank" rel="noopener">“Lamborghini Urus”</a> por Steven Grey · CC BY-NC 4.0</li>
+      <li><a href="https://sketchfab.com/3d-models/2020-konigsegg-jesko-646cd7fc40244e9ba9a62823556a4ad5" target="_blank" rel="noopener">“2020 Konigsegg Jesko”</a> por SRT Performance · CC BY 4.0 (malha quantizada)</li>
+      <li><a href="https://blendswap.com/blend/32484" target="_blank" rel="noopener">“Bugatti Chiron 2017”</a> por Bob Kimani (Kimz Auto) · CC BY-NC</li>
+    </ul>
+    <p>Nomes e marcas pertencem aos seus donos; uso pessoal, sem fins comerciais.</p>
+  </details>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
 <script src="script.js"></script>
+<script type="module" src="showroom.js"></script>
 </body>
 </html>

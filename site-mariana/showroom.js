@@ -23,7 +23,7 @@ const CARROS = [
     cv: '450 cv', zero: '3,6 s', vmax: '306 km/h', tom: 1.12,
     frase: 'Clássica e elegante, igualzinha a você.',
     pintura: /^paint$/,
-    rodas: /^Cylinder00[01]_[012]$/,
+    dividir: /^Cylinder00[01]_[012]$/, esterco: true, // rodas em pares e as da frente esterçadas
     farois: /^lights$/, lanternas: /^coat$/,
   },
   {
@@ -43,11 +43,11 @@ const CARROS = [
     farois: /LightsFrontLed|LightsGlassFront/i, lanternas: /emitbrake|LightsGlassBack/i,
   },
   {
-    id: 'koenigsegg', marca: 'Koenigsegg', modelo: 'Jesko', arquivo: 'modelos/jesko.glb', giro: Math.PI,
+    id: 'koenigsegg', marca: 'Koenigsegg', modelo: 'Jesko', arquivo: 'modelos/jesko.glb', giro: Math.PI + 15 * Math.PI / 180, // o modelo vem 15° torto
     cv: '1.600 cv', zero: '2,5 s', vmax: '+480 km/h', tom: 1.45,
     frase: 'Hipercarro sueco. Raro no mundo, como você.',
     pintura: /^L1Mtl$/,
-    rodas: null, // neste modelo as quatro rodas são uma malha só
+    dividir: /^Meshpart[1-4]Mtl\.001$/, // as quatro rodas vêm numa malha só
     farois: /^L(3|5|7)Mtl$/, lanternas: /^(L6Mtl|Rg1Mtl)$/,
   },
   {
@@ -268,29 +268,36 @@ function montar(raiz, cfg) {
     o.material = Array.isArray(o.material) ? o.material.map(trocar) : trocar(o.material);
   });
 
-  // rodas: as peças de cada roda são agrupadas por proximidade
-  // e ganham um pivô no centro do pneu para girar
+  // rodas: as peças de cada roda são agrupadas por proximidade e ganham
+  // um pivô no centro do pneu, girando no eixo real dela (rodas da frente
+  // podem estar esterçadas). Malhas que juntam várias rodas são divididas.
   const rodas = [];
-  if (cfg.rodas) {
-    const achadas = [];
-    raiz.traverse(o => { if (cfg.rodas.test(o.name)) achadas.push(o); });
-    const grupos = [];
-    achadas.filter(o => !achadas.some(a => a !== o && isAncestor(a, o))).forEach(o => {
-      const b = new THREE.Box3().setFromObject(o, true);
-      if (b.isEmpty()) return;
-      const c = b.getCenter(new THREE.Vector3());
-      const g = grupos.find(g => g.c.distanceTo(c) < 0.35);
-      if (g) { g.partes.push(o); g.box.union(b); } else grupos.push({ c, box: b, partes: [o] });
-    });
-    grupos.forEach(g => {
-      const pivo = new THREE.Group();
-      carro.add(pivo);
-      pivo.position.copy(g.box.getCenter(new THREE.Vector3()));
-      pivo.updateMatrixWorld(true);
-      g.partes.forEach(o => pivo.attach(o));
-      rodas.push(pivo);
-    });
+  const pecas = [];
+  if (cfg.rodas) raiz.traverse(o => { if (cfg.rodas.test(o.name)) pecas.push(o); });
+  if (cfg.dividir) {
+    const juntas = [];
+    raiz.traverse(o => { if (o.isMesh && (cfg.dividir.test(o.name) || cfg.dividir.test(o.material.name))) juntas.push(o); });
+    juntas.forEach(o => pecas.push(...dividirPorRoda(o)));
   }
+  const grupos = [];
+  pecas.filter(o => !pecas.some(a => a !== o && isAncestor(a, o))).forEach(o => {
+    const b = new THREE.Box3().setFromObject(o, true);
+    if (b.isEmpty()) return;
+    const c = b.getCenter(new THREE.Vector3());
+    const g = grupos.find(g => g.c.distanceTo(c) < 0.35);
+    const tam = b.getSize(new THREE.Vector3()).length();
+    if (!g) grupos.push({ c, partes: [o], maior: o, box: b, tam });
+    else { g.partes.push(o); if (tam > g.tam) Object.assign(g, { maior: o, box: b, tam }); }
+  });
+  grupos.forEach(g => {
+    const pivo = new THREE.Group();
+    carro.add(pivo);
+    pivo.position.copy(g.box.getCenter(new THREE.Vector3()));
+    pivo.updateMatrixWorld(true);
+    pivo.userData.eixo = cfg.esterco ? eixoDaRoda(g.maior, pivo.position) : new THREE.Vector3(0, 0, 1);
+    g.partes.forEach(o => pivo.attach(o));
+    rodas.push(pivo);
+  });
 
   // lacinho da Kitty no teto (acha o teto com um raio de cima para baixo)
   const ray = new THREE.Raycaster(new THREE.Vector3(-COMPRIMENTO * 0.08, 10, 0), new THREE.Vector3(0, -1, 0));
@@ -308,6 +315,65 @@ function montar(raiz, cfg) {
 
   carro.userData = { cfg, rodas, farois, lanternas, fachos, alturaTeto, dims };
   return carro;
+}
+// separa os triângulos de uma malha por quadrante do carro (uma roda em cada)
+function dividirPorRoda(o) {
+  const g = o.geometry, pos = g.attributes.position, idx = g.index;
+  const n = idx ? idx.count : pos.count;
+  const listas = [[], [], [], []];
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+  for (let i = 0; i < n; i += 3) {
+    const i0 = idx ? idx.getX(i) : i, i1 = idx ? idx.getX(i + 1) : i + 1, i2 = idx ? idx.getX(i + 2) : i + 2;
+    a.fromBufferAttribute(pos, i0).applyMatrix4(o.matrixWorld);
+    b.fromBufferAttribute(pos, i1).applyMatrix4(o.matrixWorld);
+    c.fromBufferAttribute(pos, i2).applyMatrix4(o.matrixWorld);
+    listas[(a.x + b.x + c.x > 0 ? 1 : 0) + (a.z + b.z + c.z > 0 ? 2 : 0)].push(i0, i1, i2);
+  }
+  const pedacos = [];
+  listas.forEach(l => {
+    if (!l.length) return;
+    // copia só os vértices usados por esta roda
+    const mapa = new Map(), novos = [];
+    const indice = l.map(v => { if (!mapa.has(v)) { mapa.set(v, novos.length); novos.push(v); } return mapa.get(v); });
+    const ng = new THREE.BufferGeometry();
+    const get = ['getX', 'getY', 'getZ', 'getW'];
+    for (const k in g.attributes) {
+      const at = g.attributes[k], tam = at.itemSize, arr = new Float32Array(novos.length * tam);
+      novos.forEach((v, j) => { for (let c = 0; c < tam; c++) arr[j * tam + c] = at[get[c]](v); });
+      ng.setAttribute(k, new THREE.BufferAttribute(arr, tam));
+    }
+    ng.setIndex(indice);
+    const m = new THREE.Mesh(ng, o.material);
+    m.castShadow = m.receiveShadow = true;
+    m.position.copy(o.position); m.quaternion.copy(o.quaternion); m.scale.copy(o.scale);
+    o.parent.add(m);
+    m.updateMatrixWorld(true);
+    pedacos.push(m);
+  });
+  o.parent.remove(o);
+  return pedacos;
+}
+
+// o eixo de uma roda é a direção (no plano do chão) em que ela é mais estreita
+function eixoDaRoda(obj, centro) {
+  const pts = [], p = new THREE.Vector3();
+  obj.traverse(o => {
+    if (!o.isMesh) return;
+    const pos = o.geometry.attributes.position, idx = o.geometry.index;
+    const n = idx ? idx.count : pos.count, passo = Math.max(1, Math.floor(n / 1500));
+    for (let i = 0; i < n; i += passo) {
+      p.fromBufferAttribute(pos, idx ? idx.getX(i) : i).applyMatrix4(o.matrixWorld).sub(centro);
+      pts.push(p.x, p.z);
+    }
+  });
+  let melhor = 0, menor = Infinity;
+  for (let graus = -35; graus <= 35; graus += 0.5) {
+    const ang = graus * Math.PI / 180, sx = Math.sin(ang), cz = Math.cos(ang);
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < pts.length; i += 2) { const d = pts[i] * sx + pts[i + 1] * cz; if (d < lo) lo = d; if (d > hi) hi = d; }
+    if (hi - lo < menor - 1e-4) { menor = hi - lo; melhor = ang; }
+  }
+  return new THREE.Vector3(Math.sin(melhor), 0, Math.cos(melhor));
 }
 function isAncestor(a, o) { for (let p = o.parent; p; p = p.parent) if (p === a) return true; return false; }
 
@@ -465,7 +531,7 @@ function animarLuzes(carro, dt, ativo) {
   fachos.forEach(s => { s.intensity = suave(s.intensity, ativo && ligado ? 40 : 0, Math.min(1, dt * 5)); });
 }
 function girarRodas(carro, vel, dt) {
-  carro.userData.rodas.forEach(r => { r.rotation.z -= vel * dt; });
+  carro.userData.rodas.forEach(r => r.rotateOnAxis(r.userData.eixo, -vel * dt));
 }
 
 function quadro() {

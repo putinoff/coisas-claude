@@ -43,7 +43,7 @@ const CARROS = [
     farois: /LightsFrontLed|LightsGlassFront/i, lanternas: /emitbrake|LightsGlassBack/i,
   },
   {
-    id: 'koenigsegg', marca: 'Koenigsegg', modelo: 'Jesko', arquivo: 'modelos/jesko.glb', giro: -Math.PI / 2,
+    id: 'koenigsegg', marca: 'Koenigsegg', modelo: 'Jesko', arquivo: 'modelos/jesko.glb', giro: Math.PI,
     cv: '1.600 cv', zero: '2,5 s', vmax: '+480 km/h', tom: 1.45,
     frase: 'Hipercarro sueco. Raro no mundo, como você.',
     pintura: /^L1Mtl$/,
@@ -228,13 +228,15 @@ function montar(raiz, cfg) {
   const corpo = new THREE.Group();
   carro.add(corpo);
   corpo.add(raiz);
-  if (cfg.giro) raiz.rotation.y = cfg.giro;
   corpo.updateMatrixWorld(true);
 
-  // deita o carro no eixo X (frente para +X), escala e apoia no chão
+  // deita o carro no eixo X; "giro" vira a frente para +X quando o modelo vem de costas
   let box = new THREE.Box3().setFromObject(corpo, true);
   box.getSize(v3);
-  if (v3.z > v3.x && !cfg.giro) { raiz.rotation.y = Math.PI / 2; corpo.updateMatrixWorld(true); box = new THREE.Box3().setFromObject(corpo, true); box.getSize(v3); }
+  raiz.rotation.y = (v3.z > v3.x ? Math.PI / 2 : 0) + (cfg.giro || 0);
+  corpo.updateMatrixWorld(true);
+  box = new THREE.Box3().setFromObject(corpo, true);
+  box.getSize(v3);
   const escala = COMPRIMENTO / v3.x;
   corpo.scale.setScalar(escala);
   corpo.updateMatrixWorld(true);

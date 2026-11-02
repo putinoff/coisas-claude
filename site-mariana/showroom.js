@@ -216,7 +216,7 @@ function carregar(cfg, progresso) {
   if (cache[cfg.id]) return cache[cfg.id];
   cache[cfg.id] = new Promise((ok, erro) => {
     loader.load(cfg.arquivo, g => ok(montar(g.scene, cfg)), e => {
-      if (e.total) progresso(e.loaded / e.total);
+      if (e.total) progresso(Math.min(1, e.loaded / e.total)); // servidor pode comprimir (gzip)
     }, err => { delete cache[cfg.id]; erro(err); });
   });
   return cache[cfg.id];

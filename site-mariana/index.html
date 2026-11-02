@@ -3,117 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Para a Mariana 💖</title>
+<title>Mariana — Edição Única</title>
+<meta name="description" content="Um site feito só para a Mariana.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Fredoka:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500;1,600&family=Great+Vibes&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ================= HERO 3D ================= -->
-<section id="hero">
-  <canvas id="scene"></canvas>
-  <div class="hero-title">
-    <small>um site feito só pra você</small>
-    <h1 class="nome" id="nome">Mariana</h1>
+<!-- ================= HERO / SHOWROOM 3D ================= -->
+<header id="hero">
+  <canvas id="scene" aria-label="BMW em 3D girando num showroom"></canvas>
+
+  <nav class="nav">
+    <a href="#hero" class="marca">M<span>♥</span>L</a>
+    <ul>
+      <li><a href="#kitty">Kitty</a></li>
+      <li><a href="#carta">Carta</a></li>
+      <li><a href="#motivos">Motivos</a></li>
+      <li><a href="#final">Pra você</a></li>
+    </ul>
+  </nav>
+
+  <div class="hero-titulo">
+    <p class="eyebrow">Edição limitada · Unidade única no mundo</p>
+    <h1>Mariana</h1>
+    <p class="hero-sub">Feita sob medida, com acabamento em amor.</p>
   </div>
-  <div class="controles">
-    <div class="dica">🖐️ Arraste para girar a BMW · toque no carro para ganhar corações</div>
-    <div class="cores" id="cores">
-      <button class="cor ativa" data-cor="#ff7eb3" style="background:#ff7eb3" title="Rosa Kitty" aria-label="Rosa Kitty"></button>
-      <button class="cor" data-cor="#1c69d4" style="background:#1c69d4" title="Azul M" aria-label="Azul M"></button>
-      <button class="cor" data-cor="#111318" style="background:#111318" title="Preto Safira" aria-label="Preto Safira"></button>
-      <button class="cor" data-cor="#f4f4f6" style="background:#f4f4f6" title="Branco Alpine" aria-label="Branco Alpine"></button>
-      <button class="cor" data-cor="#b0122f" style="background:#b0122f" title="Vermelho Paixão" aria-label="Vermelho Paixão"></button>
+
+  <div class="carregando" id="carregando"><span></span>Preparando o showroom…</div>
+
+  <div class="painel" id="painel">
+    <div class="painel-specs">
+      <div><small>Potência</small><strong>∞ cv</strong><em>de amor</em></div>
+      <div><small>0–100 de saudade</small><strong>2,1 s</strong><em>depois de ir embora</em></div>
+      <div><small>Origem</small><strong>Coração</strong><em>do Lucas</em></div>
     </div>
-    <div class="acoes">
-      <button class="btn azul" id="btnAcelerar"><span class="m-stripes"><i></i><i></i><i></i></span>Acelerar</button>
-      <button class="btn" id="btnBuzina">📯 Bi-bi!</button>
-      <button class="btn azul" id="btnFarol">💡 Faróis</button>
+    <div class="painel-cor">
+      <small>Pintura · <span id="nomeCor">Rosa Mariana</span></small>
+      <div class="cores" id="cores">
+        <button class="cor ativa" data-cor="#d9849f" data-metal="0.55" data-nome="Rosa Mariana" style="--c:#d9849f" aria-label="Rosa Mariana"></button>
+        <button class="cor" data-cor="#1a4fa8" data-metal="0.7" data-nome="Portimão Blue" style="--c:#1a4fa8" aria-label="Portimão Blue"></button>
+        <button class="cor" data-cor="#0b0c10" data-metal="0.6" data-nome="Black Sapphire" style="--c:#0b0c10" aria-label="Black Sapphire"></button>
+        <button class="cor" data-cor="#eceef0" data-metal="0.1" data-nome="Alpine White" style="--c:#eceef0" aria-label="Alpine White"></button>
+        <button class="cor" data-cor="#8a0f22" data-metal="0.65" data-nome="Melbourne Red" style="--c:#8a0f22" aria-label="Melbourne Red"></button>
+      </div>
+    </div>
+    <div class="painel-acoes">
+      <button class="btn-vidro" id="btnPartida">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5"/></svg>
+        <span>Dar partida</span>
+      </button>
+      <button class="btn-vidro" id="btnAcelerar">
+        <svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>
+        <span>Acelerar</span>
+      </button>
+      <button class="btn-vidro" id="btnBuzina">
+        <svg viewBox="0 0 24 24"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
+        <span>Buzina</span>
+      </button>
     </div>
   </div>
-  <a href="#kitty" class="seta" aria-label="Rolar para baixo">⬇</a>
-</section>
 
-<!-- ================= HELLO KITTY ================= -->
-<section class="bloco fundo-kitty" id="kitty">
-  <h2 class="titulo-secao revelar">Hello, Mariana! 🎀</h2>
-  <p class="sub revelar">A Kitty tem uns recadinhos pra você. Clica nela!</p>
-  <div class="kitty-area revelar">
-    <div class="kitty-card" id="kittyCard">
-      <svg viewBox="0 0 300 260" aria-label="Gatinha fofa com laço rosa">
-        <!-- orelhas -->
-        <path d="M62 92 L52 18 Q54 8 66 14 L128 52 Z" fill="#fff" stroke="#222" stroke-width="7" stroke-linejoin="round"/>
-        <path d="M238 92 L248 18 Q246 8 234 14 L172 52 Z" fill="#fff" stroke="#222" stroke-width="7" stroke-linejoin="round"/>
-        <!-- cabeça -->
-        <ellipse cx="150" cy="140" rx="128" ry="98" fill="#fff" stroke="#222" stroke-width="7"/>
-        <!-- olhos -->
-        <ellipse class="olho" cx="100" cy="148" rx="11" ry="16" fill="#222"/>
-        <ellipse class="olho" cx="200" cy="148" rx="11" ry="16" fill="#222"/>
-        <!-- bochechas -->
-        <ellipse cx="78" cy="185" rx="16" ry="9" fill="#ffc0d6" opacity=".8"/>
-        <ellipse cx="222" cy="185" rx="16" ry="9" fill="#ffc0d6" opacity=".8"/>
-        <!-- nariz -->
-        <ellipse cx="150" cy="172" rx="14" ry="10" fill="#ffd21f" stroke="#222" stroke-width="5"/>
-        <!-- bigodes -->
-        <g stroke="#222" stroke-width="6" stroke-linecap="round">
-          <line x1="8" y1="140" x2="56" y2="148"/>
-          <line x1="4" y1="168" x2="54" y2="168"/>
-          <line x1="10" y1="196" x2="56" y2="186"/>
-          <line x1="292" y1="140" x2="244" y2="148"/>
-          <line x1="296" y1="168" x2="246" y2="168"/>
-          <line x1="290" y1="196" x2="244" y2="186"/>
-        </g>
-        <!-- laço -->
-        <g class="laco" id="laco">
-          <path d="M210 52 Q170 8 178 58 Q172 104 212 70 Z" fill="#ff2d6f" stroke="#222" stroke-width="6" stroke-linejoin="round"/>
-          <path d="M232 60 Q276 20 278 66 Q286 110 236 84 Z" fill="#ff2d6f" stroke="#222" stroke-width="6" stroke-linejoin="round"/>
-          <circle cx="222" cy="68" r="17" fill="#ff2d6f" stroke="#222" stroke-width="6"/>
-          <circle cx="216" cy="62" r="5" fill="#fff" opacity=".7"/>
-        </g>
-      </svg>
+  <p class="dica">Arraste para girar · toque no carro</p>
+</header>
+
+<main>
+  <!-- ================= HELLO KITTY ================= -->
+  <section class="secao" id="kitty">
+    <div class="duas-colunas">
+      <div class="texto revelar">
+        <p class="eyebrow escuro">01 — A favorita dela</p>
+        <h2>Hello, <em>Mariana.</em></h2>
+        <p>Dizem que a Hello Kitty não tem boca porque fala com o coração. Faz sentido: tem coisa que eu sinto por você que não cabe em palavra nenhuma.</p>
+        <p>Mas a Kitty deixou uns recadinhos. É só tocar nela.</p>
+        <div class="recado" id="recado" aria-live="polite">
+          <span class="recado-aspas">“</span>
+          <p id="recadoTexto">Toque na Kitty para receber um recado.</p>
+        </div>
+      </div>
+      <div class="kitty-palco revelar">
+        <div class="kitty-card" id="kittyCard" role="button" tabindex="0" aria-label="Receber recado da Kitty">
+          <div class="kitty-brilho"></div>
+          <svg viewBox="0 0 300 260" aria-hidden="true">
+            <path d="M64 96 L54 22 Q56 10 68 16 L130 54 Z" fill="#fff" stroke="#1d1a1c" stroke-width="6" stroke-linejoin="round"/>
+            <path d="M236 96 L246 22 Q244 10 232 16 L170 54 Z" fill="#fff" stroke="#1d1a1c" stroke-width="6" stroke-linejoin="round"/>
+            <ellipse cx="150" cy="142" rx="126" ry="96" fill="#fff" stroke="#1d1a1c" stroke-width="6"/>
+            <ellipse class="olho" cx="101" cy="150" rx="10" ry="14" fill="#1d1a1c"/>
+            <ellipse class="olho" cx="199" cy="150" rx="10" ry="14" fill="#1d1a1c"/>
+            <ellipse cx="150" cy="174" rx="13" ry="9" fill="#f5c518" stroke="#1d1a1c" stroke-width="4.5"/>
+            <g stroke="#1d1a1c" stroke-width="5" stroke-linecap="round">
+              <line x1="12" y1="142" x2="58" y2="150"/><line x1="8" y1="170" x2="56" y2="170"/><line x1="14" y1="198" x2="58" y2="188"/>
+              <line x1="288" y1="142" x2="242" y2="150"/><line x1="292" y1="170" x2="244" y2="170"/><line x1="286" y1="198" x2="242" y2="188"/>
+            </g>
+            <g class="laco" id="laco">
+              <path d="M210 54 Q172 10 180 60 Q174 104 212 72 Z" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5" stroke-linejoin="round"/>
+              <path d="M232 62 Q274 22 276 68 Q284 110 236 86 Z" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5" stroke-linejoin="round"/>
+              <circle cx="222" cy="70" r="16" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5"/>
+            </g>
+          </svg>
+        </div>
+      </div>
     </div>
-    <div class="balao" id="balao">Oiê, Mariana! Clica em mim 💕</div>
-  </div>
-</section>
+  </section>
 
-<!-- ================= CARTA ================= -->
-<section class="bloco" id="carta">
-  <h2 class="titulo-secao revelar">Uma cartinha pra você 💌</h2>
-  <p class="sub revelar">Escrevi com todo o carinho do mundo. Abre o envelope!</p>
-  <div class="carta-area revelar">
-    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Abrir a carta">
-      <div class="env-fundo"></div>
-      <div class="papelzinho"></div>
-      <div class="env-frente"></div>
-      <div class="env-aba"></div>
-      <div class="selo">💗</div>
+  <!-- ================= CARTA ================= -->
+  <section class="secao secao-blush" id="carta">
+    <div class="cabecalho revelar">
+      <p class="eyebrow escuro">02 — Uma carta</p>
+      <h2>Escrevi <em>pra você.</em></h2>
     </div>
-    <div class="clique-carta" id="cliqueCarta">toque para abrir ✨</div>
-    <div class="carta" id="textoCarta"></div>
-  </div>
-</section>
+    <div class="carta-area revelar">
+      <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Abrir a carta">
+        <div class="env-fundo"></div>
+        <div class="env-papel"></div>
+        <div class="env-frente"></div>
+        <div class="env-aba"></div>
+        <div class="selo"><span>M</span></div>
+      </div>
+      <p class="instrucao" id="instrucao">Toque no selo para abrir</p>
+      <article class="carta" id="carta-texto" aria-live="polite"></article>
+    </div>
+  </section>
 
-<!-- ================= MOTIVOS ================= -->
-<section class="bloco fundo-kitty" id="motivos">
-  <h2 class="titulo-secao revelar">Motivos pelos quais eu te amo</h2>
-  <p class="sub revelar">Vira cada cartinha (são só alguns, a lista real não cabe no site 😅)</p>
-  <div class="grade revelar" id="grade"></div>
-</section>
+  <!-- ================= MOTIVOS ================= -->
+  <section class="secao" id="motivos">
+    <div class="cabecalho revelar">
+      <p class="eyebrow escuro">03 — Motivos</p>
+      <h2>Por que eu <em>te amo.</em></h2>
+      <p class="cabecalho-sub">Seis, de uma lista que não tem fim. Toque em cada cartão.</p>
+    </div>
+    <div class="grade revelar" id="grade"></div>
+  </section>
 
-<!-- ================= FINAL ================= -->
-<section class="bloco" id="final">
-  <h2 class="titulo-secao">Mariana...</h2>
-  <p class="pergunta">Você aceita ser minha co-piloto em todas as estradas da vida? 🚗💖</p>
-  <div class="botoes-final">
-    <button class="btn" id="btnSim">Sim! 💕</button>
-    <button class="btn" id="btnNao">Não</button>
-  </div>
-  <div class="resposta" id="resposta">Eu sabia! Te amo, Mariana 💖</div>
-</section>
+  <!-- ================= FINAL ================= -->
+  <section class="secao secao-noite" id="final">
+    <p class="eyebrow">04 — Uma pergunta</p>
+    <h2 class="pergunta">Você aceita ser minha <em>co-piloto</em> em todas as estradas da vida?</h2>
+    <div class="botoes-final">
+      <button class="btn-principal" id="btnSim">Sim, aceito</button>
+      <button class="btn-fantasma" id="btnNao">Não</button>
+    </div>
+    <p class="resposta" id="resposta">Eu sabia. Te amo, Mariana.</p>
+  </section>
+</main>
 
-<footer>Feito com 💗, laço de Hello Kitty e cavalos de BMW — só pra Mariana.</footer>
+<footer>
+  <span class="marca">M<span>♥</span>L</span>
+  <p>Feito à mão, só pra Mariana · 2026</p>
+</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="script.js"></script>

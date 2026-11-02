@@ -1,500 +1,571 @@
 /* =========================================================
-   TEXTOS (fácil de editar)
+   TEXTOS — edite aqui à vontade
    ========================================================= */
-const CARTA = `Mariana, meu amor,
+const CARTA = {
+  saudacao: 'Mariana, meu amor,',
+  paragrafos: [
+    'Se a vida fosse uma estrada, eu queria percorrer cada quilômetro dela do seu lado — com a janela aberta, a nossa música tocando e a sua mão segurando a minha.',
+    'Você é o meu lugar favorito, o meu sorriso sem motivo e a parte mais bonita de todos os meus dias. Com você, até trânsito parado vira passeio, e qualquer tarde comum ganha um tom de rosa, igualzinho ao laço da Hello Kitty.',
+    'Obrigado por ser tão carinhosa, tão linda e tão você. Prometo ser seu co-piloto, seu porto seguro e o seu fã número um, pra sempre.',
+    'Te amo mais do que ontem e menos do que amanhã.',
+  ],
+  assinatura: 'Lucas',
+};
 
-Se a vida fosse uma estrada, eu queria percorrer cada quilômetro dela do seu lado — com a janela aberta, a nossa música tocando e a sua mão segurando a minha.
-
-Você é o meu lugar favorito, o meu sorriso sem motivo e a parte mais bonita de todos os meus dias. Com você, até trânsito parado vira passeio, e qualquer tarde comum ganha um tom de rosa, igualzinho ao laço da Hello Kitty.
-
-Obrigado por ser tão carinhosa, tão linda e tão você. Prometo ser seu co-piloto, seu porto seguro e o seu fã número um, pra sempre.
-
-Te amo mais do que ontem e menos do que amanhã.
-
-Com todo o meu amor,
-Lucas 💗`;
-
-const FRASES_KITTY = [
-  'Mariana, você é a pessoa mais fofa do universo! 🌸',
-  'Sabia que alguém aí te ama muuuito? 💕',
-  'Até eu fico com ciúmes do seu laço de fofura 🎀',
-  'Seu sorriso brilha mais que farol de BMW ✨',
-  'Hoje é um ótimo dia pra ganhar um beijinho 😘',
-  'Você + ele = combinação perfeita 💞',
-  'Lembrete oficial: você é linda! 💖',
+const RECADOS_KITTY = [
+  'Mariana, você é a pessoa mais fofa do universo.',
+  'Sabia que tem alguém que pensa em você o dia inteiro?',
+  'Seu sorriso brilha mais que farol de BMW à noite.',
+  'Hoje é um ótimo dia pra ganhar um beijinho.',
+  'Você e ele: a combinação mais bonita que eu já vi.',
+  'Lembrete oficial da Kitty: você é linda.',
 ];
 
 const MOTIVOS = [
-  { e: '😊', t: 'Seu sorriso, que liga o meu dia mais rápido que partida de BMW.' },
-  { e: '🎀', t: 'Esse seu jeitinho Hello Kitty de ser fofa sem nem tentar.' },
-  { e: '🚗', t: 'Você é tipo uma BMW: linda, potente e única no mundo.', bmw: true },
-  { e: '🤗', t: 'Seu abraço, que é o meu lugar favorito de estacionar.' },
-  { e: '😂', t: 'As nossas risadas sem motivo nenhum.' },
-  { e: '🌙', t: 'Porque é em você que eu penso antes de dormir — todo dia.' },
+  { tit: 'Seu sorriso', t: 'Ele liga o meu dia mais rápido que a partida de uma BMW.' },
+  { tit: 'Seu jeitinho', t: 'Essa fofura de Hello Kitty que você tem sem nem tentar.' },
+  { tit: 'Única', t: 'Você é tipo uma BMW: linda, potente e sem igual no mundo.', bmw: true },
+  { tit: 'Seu abraço', t: 'O meu lugar favorito para estacionar.' },
+  { tit: 'Nossas risadas', t: 'Aquelas sem motivo nenhum, que viram as melhores lembranças.' },
+  { tit: 'Todo dia', t: 'Porque é em você que eu penso antes de dormir — e ao acordar.' },
 ];
 
 /* =========================================================
-   CORAÇÕES DE CLIQUE
+   EFEITOS DOM
    ========================================================= */
-const EMOJIS = ['💖', '💕', '💗', '🎀', '💘', '✨'];
-function explodirCoracoes(x, y, qtd = 8) {
+function explodir(x, y, qtd = 10) {
   for (let i = 0; i < qtd; i++) {
-    const c = document.createElement('div');
-    c.className = 'coracao-voa';
-    c.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    const p = document.createElement('div');
+    p.className = 'particula';
+    p.textContent = Math.random() < 0.7 ? '♥' : '✦';
     const ang = Math.random() * Math.PI * 2;
-    const dist = 60 + Math.random() * 90;
-    c.style.left = x + 'px';
-    c.style.top = y + 'px';
-    c.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
-    c.style.setProperty('--dy', Math.sin(ang) * dist - 40 + 'px');
-    c.style.setProperty('--rot', (Math.random() * 80 - 40) + 'deg');
-    c.style.fontSize = (16 + Math.random() * 16) + 'px';
-    document.body.appendChild(c);
-    setTimeout(() => c.remove(), 1500);
+    const dist = 50 + Math.random() * 90;
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    p.style.fontSize = (10 + Math.random() * 14) + 'px';
+    p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(ang) * dist - 30 + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1700);
   }
 }
-document.addEventListener('pointerdown', e => {
-  if (e.target.closest('#scene')) return; // o canvas cuida dos próprios corações
-  explodirCoracoes(e.clientX, e.clientY, 5);
-});
-
-function chuvaDeCoracoes(qtd = 60) {
+function chuva(qtd = 70) {
   for (let i = 0; i < qtd; i++) {
     setTimeout(() => {
       const c = document.createElement('div');
       c.className = 'chuva';
-      c.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+      c.textContent = Math.random() < 0.75 ? '♥' : '✦';
       c.style.left = Math.random() * 100 + 'vw';
-      c.style.fontSize = (18 + Math.random() * 26) + 'px';
-      c.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+      c.style.fontSize = (12 + Math.random() * 22) + 'px';
+      c.style.opacity = 0.5 + Math.random() * 0.5;
+      c.style.animationDuration = (3 + Math.random() * 3) + 's';
       document.body.appendChild(c);
-      setTimeout(() => c.remove(), 5200);
-    }, i * 60);
+      setTimeout(() => c.remove(), 6200);
+    }, i * 70);
   }
 }
 
 /* =========================================================
-   NOME ANIMADO
-   ========================================================= */
-const nomeEl = document.getElementById('nome');
-nomeEl.innerHTML = [...'Mariana'].map((l, i) =>
-  `<span style="animation-delay:${i * 0.12}s">${l}</span>`).join('');
-
-/* =========================================================
-   SONS (Web Audio — sem arquivos externos)
+   SONS (Web Audio — nenhum arquivo externo)
    ========================================================= */
 let audioCtx = null;
-function ctx() {
+function audio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
-function somMotor() {
-  const a = ctx(), t = a.currentTime;
-  const osc = a.createOscillator(), osc2 = a.createOscillator();
-  const filtro = a.createBiquadFilter(), g = a.createGain();
-  osc.type = 'sawtooth'; osc2.type = 'square';
-  osc.frequency.setValueAtTime(55, t);
-  osc.frequency.exponentialRampToValueAtTime(190, t + 0.9);
-  osc.frequency.exponentialRampToValueAtTime(120, t + 1.1);
-  osc.frequency.exponentialRampToValueAtTime(240, t + 1.9);
-  osc.frequency.exponentialRampToValueAtTime(60, t + 2.6);
-  osc2.frequency.setValueAtTime(27.5, t);
-  osc2.frequency.exponentialRampToValueAtTime(120, t + 1.9);
-  osc2.frequency.exponentialRampToValueAtTime(30, t + 2.6);
-  filtro.type = 'lowpass'; filtro.frequency.value = 700;
+function motor(curva, duracao, volume = 0.16) {
+  const a = audio(), t = a.currentTime;
+  const o1 = a.createOscillator(), o2 = a.createOscillator();
+  const f = a.createBiquadFilter(), g = a.createGain();
+  o1.type = 'sawtooth'; o2.type = 'square';
+  curva.forEach(([tempo, hz], i) => {
+    const m = i === 0 ? 'setValueAtTime' : 'exponentialRampToValueAtTime';
+    o1.frequency[m](hz, t + tempo);
+    o2.frequency[m](hz / 2, t + tempo);
+  });
+  f.type = 'lowpass'; f.frequency.value = 520; f.Q.value = 4;
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(0.18, t + 0.1);
-  g.gain.setValueAtTime(0.18, t + 1.9);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + 2.7);
-  osc.connect(filtro); osc2.connect(filtro); filtro.connect(g); g.connect(a.destination);
-  osc.start(t); osc2.start(t); osc.stop(t + 2.8); osc2.stop(t + 2.8);
+  g.gain.exponentialRampToValueAtTime(volume, t + 0.12);
+  g.gain.setValueAtTime(volume, t + duracao - 0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + duracao);
+  o1.connect(f); o2.connect(f); f.connect(g); g.connect(a.destination);
+  o1.start(t); o2.start(t); o1.stop(t + duracao + 0.05); o2.stop(t + duracao + 0.05);
 }
+const somPartida = () => motor([[0, 30], [0.35, 38], [0.6, 140], [1.0, 70], [2.2, 52]], 2.4, 0.14);
+const somAcelerar = () => motor([[0, 55], [0.8, 200], [1.0, 130], [1.8, 260], [2.6, 58]], 2.8, 0.17);
 function somBuzina() {
-  const a = ctx(), t = a.currentTime;
-  [[0, 0.18], [0.25, 0.32]].forEach(([ini, fim]) => {
-    [415, 523].forEach(f => {
-      const o = a.createOscillator(), g = a.createGain();
-      o.type = 'square'; o.frequency.value = f;
+  const a = audio(), t = a.currentTime;
+  [[0, 0.16], [0.22, 0.5]].forEach(([ini, fim]) => {
+    [392, 494].forEach(hz => {
+      const o = a.createOscillator(), g = a.createGain(), f = a.createBiquadFilter();
+      o.type = 'square'; o.frequency.value = hz;
+      f.type = 'lowpass'; f.frequency.value = 2200;
       g.gain.setValueAtTime(0.0001, t + ini);
-      g.gain.exponentialRampToValueAtTime(0.07, t + ini + 0.02);
-      g.gain.setValueAtTime(0.07, t + fim - 0.03);
+      g.gain.exponentialRampToValueAtTime(0.06, t + ini + 0.02);
+      g.gain.setValueAtTime(0.06, t + fim - 0.03);
       g.gain.exponentialRampToValueAtTime(0.0001, t + fim);
-      o.connect(g); g.connect(a.destination);
+      o.connect(f); f.connect(g); g.connect(a.destination);
       o.start(t + ini); o.stop(t + fim + 0.02);
     });
   });
 }
-function somFofo() {
-  const a = ctx(), t = a.currentTime;
-  [880, 1175, 1568].forEach((f, i) => {
+function somSino() {
+  const a = audio(), t = a.currentTime;
+  [1046, 1318, 1568].forEach((hz, i) => {
     const o = a.createOscillator(), g = a.createGain();
-    o.type = 'sine'; o.frequency.value = f;
-    g.gain.setValueAtTime(0.0001, t + i * 0.08);
-    g.gain.exponentialRampToValueAtTime(0.12, t + i * 0.08 + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.08 + 0.3);
+    o.type = 'sine'; o.frequency.value = hz;
+    const ini = t + i * 0.09;
+    g.gain.setValueAtTime(0.0001, ini);
+    g.gain.exponentialRampToValueAtTime(0.08, ini + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, ini + 0.6);
     o.connect(g); g.connect(a.destination);
-    o.start(t + i * 0.08); o.stop(t + i * 0.08 + 0.35);
+    o.start(ini); o.stop(ini + 0.65);
   });
 }
 
 /* =========================================================
-   CENA 3D — BMW + corações + laço
+   SHOWROOM 3D
    ========================================================= */
-(function cena3D() {
-  if (typeof THREE === 'undefined') return;
+(function showroom() {
   const canvas = document.getElementById('scene');
+  const carregando = document.getElementById('carregando');
+  if (typeof THREE === 'undefined') { carregando.textContent = 'Não foi possível carregar o 3D.'; return; }
+
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0xf7a1c4, 14, 30);
-  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+  scene.fog = new THREE.Fog(0x0c0b0e, 11, 26);
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
 
-  // luzes
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xffb3d1, 0.9));
-  const sol = new THREE.DirectionalLight(0xffffff, 1.4);
-  sol.position.set(5, 9, 6);
-  sol.castShadow = true;
-  sol.shadow.mapSize.set(1024, 1024);
-  sol.shadow.camera.left = -5; sol.shadow.camera.right = 5;
-  sol.shadow.camera.top = 5; sol.shadow.camera.bottom = -5;
-  scene.add(sol);
-  const rosaLuz = new THREE.PointLight(0xff4f9a, 1.2, 14);
-  rosaLuz.position.set(-4, 3, -3);
-  scene.add(rosaLuz);
-  const azulLuz = new THREE.PointLight(0x4f8fff, 0.9, 14);
-  azulLuz.position.set(4, 2, -4);
-  scene.add(azulLuz);
+  /* ---------- reflexos: um "estúdio" virtual vira mapa de ambiente ---------- */
+  (function ambiente() {
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const estudio = new THREE.Scene();
+    estudio.add(new THREE.Mesh(
+      new THREE.BoxGeometry(30, 14, 30),
+      new THREE.MeshBasicMaterial({ color: 0x141116, side: THREE.BackSide })
+    ));
+    const painel = (w, h, cor, forca, pos, rot) => {
+      const m = new THREE.Mesh(
+        new THREE.PlaneGeometry(w, h),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(cor).multiplyScalar(forca), side: THREE.DoubleSide })
+      );
+      m.position.set(...pos);
+      if (rot) m.rotation.set(...rot);
+      estudio.add(m);
+    };
+    painel(18, 4, 0xffffff, 4, [0, 6.8, 0], [Math.PI / 2, 0, 0]);
+    painel(10, 3, 0xffffff, 2.5, [-14.8, 3, 2], [0, Math.PI / 2, 0]);
+    painel(10, 3, 0xffc6d6, 2.5, [14.8, 3, -2], [0, -Math.PI / 2, 0]);
+    painel(14, 1.2, 0xffffff, 2, [0, 1.5, -14.8]);
+    painel(14, 1.2, 0xffe0ea, 1.6, [0, 1.5, 14.8], [0, Math.PI, 0]);
+    scene.environment = pmrem.fromScene(estudio, 0.035).texture;
+    pmrem.dispose();
+  })();
 
-  // plataforma
-  const plataforma = new THREE.Mesh(
-    new THREE.CylinderGeometry(3.6, 3.8, 0.25, 64),
-    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4, metalness: 0.1 })
-  );
-  plataforma.position.y = -0.125;
-  plataforma.receiveShadow = true;
-  scene.add(plataforma);
-  const anel = new THREE.Mesh(
-    new THREE.TorusGeometry(3.7, 0.05, 12, 100),
-    new THREE.MeshBasicMaterial({ color: 0xff2d6f })
-  );
-  anel.rotation.x = Math.PI / 2;
-  anel.position.y = 0.01;
-  scene.add(anel);
+  /* ---------- luzes ---------- */
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x2a1a20, 0.35));
+  const chave = new THREE.DirectionalLight(0xffffff, 1.5);
+  chave.position.set(3, 9, 4);
+  chave.castShadow = true;
+  chave.shadow.mapSize.set(2048, 2048);
+  Object.assign(chave.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 20 });
+  chave.shadow.bias = -0.0004;
+  chave.shadow.radius = 4;
+  scene.add(chave);
+  const contraRosa = new THREE.SpotLight(0xff6f9c, 3, 18, 0.6, 1);
+  contraRosa.position.set(-6, 4, -5);
+  scene.add(contraRosa);
+  const contraAzul = new THREE.SpotLight(0x6f9cff, 2, 18, 0.6, 1);
+  contraAzul.position.set(6, 3, -6);
+  scene.add(contraAzul);
 
-  /* ---------- BMW estilizada ---------- */
-  const carro = new THREE.Group();
-  scene.add(carro);
-
-  const pintura = new THREE.MeshPhysicalMaterial({
-    color: 0xff7eb3, metalness: 0.55, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.08
-  });
-  const vidro = new THREE.MeshPhysicalMaterial({ color: 0x1a1a2a, metalness: 0.2, roughness: 0.05, clearcoat: 1 });
-  const cromado = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 1, roughness: 0.2 });
-  const preto = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.6 });
-  const pneuMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });
-  const farolMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xbfe0ff, emissiveIntensity: 0.4 });
-  const lanternaMat = new THREE.MeshStandardMaterial({ color: 0xff1a3c, emissive: 0xff0022, emissiveIntensity: 0.8 });
-
-  // perfil lateral (cupê) com caixas de roda
-  const perfil = new THREE.Shape();
-  perfil.moveTo(-2.1, 0.35);
-  perfil.lineTo(-1.78, 0.35);
-  perfil.absarc(-1.3, 0.38, 0.48, Math.PI, 0, true);
-  perfil.lineTo(0.82, 0.35);
-  perfil.absarc(1.3, 0.38, 0.48, Math.PI, 0, true);
-  perfil.lineTo(2.15, 0.35);
-  perfil.lineTo(2.22, 0.55);
-  perfil.quadraticCurveTo(2.22, 0.82, 1.9, 0.86);
-  perfil.lineTo(0.85, 0.96);
-  perfil.lineTo(0.15, 1.42);
-  perfil.quadraticCurveTo(-0.45, 1.5, -1.0, 1.4);
-  perfil.lineTo(-1.65, 1.0);
-  perfil.lineTo(-2.1, 0.95);
-  perfil.quadraticCurveTo(-2.26, 0.9, -2.22, 0.6);
-  perfil.lineTo(-2.1, 0.35);
-  const corpoGeo = new THREE.ExtrudeGeometry(perfil, {
-    depth: 1.7, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.06, bevelSegments: 5, curveSegments: 28
-  });
-  corpoGeo.translate(0, 0, -0.85);
-  const corpo = new THREE.Mesh(corpoGeo, pintura);
-  corpo.castShadow = true;
-  carro.add(corpo);
-
-  // para-brisa + vidro traseiro
-  const vidroPerfil = new THREE.Shape();
-  vidroPerfil.moveTo(0.92, 0.94);
-  vidroPerfil.lineTo(0.17, 1.44);
-  vidroPerfil.lineTo(-0.95, 1.4);
-  vidroPerfil.lineTo(-1.7, 0.97);
-  vidroPerfil.lineTo(0.92, 0.94);
-  const vidroGeo = new THREE.ExtrudeGeometry(vidroPerfil, {
-    depth: 1.4, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.06, bevelSegments: 2
-  });
-  vidroGeo.translate(0, 0, -0.7);
-  carro.add(new THREE.Mesh(vidroGeo, vidro));
-
-  // janelas laterais
-  const janela = new THREE.Shape();
-  janela.moveTo(0.72, 1.0);
-  janela.lineTo(0.2, 1.34);
-  janela.quadraticCurveTo(-0.45, 1.4, -0.92, 1.33);
-  janela.lineTo(-1.45, 1.02);
-  janela.lineTo(0.72, 1.0);
-  const janelaGeo = new THREE.ExtrudeGeometry(janela, { depth: 1.94, bevelEnabled: false });
-  janelaGeo.translate(0, 0, -0.97);
-  carro.add(new THREE.Mesh(janelaGeo, vidro));
-  // coluna B
-  const colunaB = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.36, 1.96), pintura);
-  colunaB.position.set(-0.35, 1.18, 0);
-  colunaB.rotation.z = -0.15;
-  carro.add(colunaB);
-
-  // grade "duplo rim"
-  [-0.18, 0.18].forEach(z => {
-    const moldura = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.26, 0.3), cromado);
-    moldura.position.set(2.24, 0.62, z);
-    carro.add(moldura);
-    const rim = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.24), preto);
-    rim.position.set(2.27, 0.62, z);
-    carro.add(rim);
-    for (let i = -2; i <= 2; i++) {
-      const barra = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.2, 0.012), cromado);
-      barra.position.set(2.3, 0.62, z + i * 0.045);
-      carro.add(barra);
-    }
-  });
-
-  // faróis "angel eyes"
-  const angelEyes = [];
-  [-1, 1].forEach(lado => {
-    const caixa = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.16, 0.42), preto);
-    caixa.position.set(2.17, 0.72, lado * 0.6);
-    carro.add(caixa);
-    [0.5, 0.7].forEach(z => {
-      const anelLuz = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.015, 8, 24), farolMat);
-      anelLuz.rotation.y = Math.PI / 2;
-      anelLuz.position.set(2.23, 0.72, lado * z);
-      carro.add(anelLuz);
-      angelEyes.push(anelLuz);
-    });
-  });
-  // lanternas
-  [-1, 1].forEach(lado => {
-    const l = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.45), lanternaMat);
-    l.position.set(-2.24, 0.8, lado * 0.58);
-    carro.add(l);
-  });
-
-  // faróis de verdade (spot) — ligam/desligam
-  const spots = [];
-  [-0.6, 0.6].forEach(z => {
-    const s = new THREE.SpotLight(0xdff0ff, 0, 9, 0.45, 0.6);
-    s.position.set(2.3, 0.72, z);
-    s.target.position.set(6, 0, z);
-    carro.add(s); carro.add(s.target);
-    spots.push(s);
-  });
-
-  // logo BMW (textura desenhada em canvas)
+  /* ---------- texturas desenhadas em canvas ---------- */
+  function gradienteRadial(cores, tam = 256) {
+    const c = document.createElement('canvas');
+    c.width = c.height = tam;
+    const g = c.getContext('2d');
+    const grd = g.createRadialGradient(tam / 2, tam / 2, 0, tam / 2, tam / 2, tam / 2);
+    cores.forEach(([p, cor]) => grd.addColorStop(p, cor));
+    g.fillStyle = grd;
+    g.fillRect(0, 0, tam, tam);
+    return new THREE.CanvasTexture(c);
+  }
   function texturaLogo() {
     const c = document.createElement('canvas');
     c.width = c.height = 256;
     const g = c.getContext('2d');
-    g.fillStyle = '#111'; g.beginPath(); g.arc(128, 128, 126, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = '#ccc'; g.lineWidth = 6; g.stroke();
-    const quad = ['#1c69d4', '#fff', '#1c69d4', '#fff'];
-    quad.forEach((cor, i) => {
+    const anel = g.createLinearGradient(0, 0, 256, 256);
+    anel.addColorStop(0, '#f2f2f2'); anel.addColorStop(0.5, '#8d8d8d'); anel.addColorStop(1, '#e6e6e6');
+    g.fillStyle = anel; g.beginPath(); g.arc(128, 128, 128, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#0d0d0f'; g.beginPath(); g.arc(128, 128, 118, 0, Math.PI * 2); g.fill();
+    ['#1c69d4', '#ffffff', '#1c69d4', '#ffffff'].forEach((cor, i) => {
       g.fillStyle = cor;
       g.beginPath(); g.moveTo(128, 128);
-      g.arc(128, 128, 72, -Math.PI / 2 + i * Math.PI / 2, i * Math.PI / 2);
+      g.arc(128, 128, 74, -Math.PI / 2 + i * Math.PI / 2, i * Math.PI / 2);
       g.fill();
     });
-    g.strokeStyle = '#ccc'; g.lineWidth = 4;
-    g.beginPath(); g.arc(128, 128, 72, 0, Math.PI * 2); g.stroke();
-    g.fillStyle = '#fff'; g.font = 'bold 40px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    [['B', -0.75], ['M', 0], ['W', 0.75]].forEach(([letra, ang]) => {
-      g.save(); g.translate(128, 128); g.rotate(ang);
-      g.fillText(letra, 0, -98); g.restore();
+    g.strokeStyle = '#bdbdbd'; g.lineWidth = 5;
+    g.beginPath(); g.arc(128, 128, 74, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = '#fff'; g.font = '600 38px Helvetica, Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    [['B', -0.72], ['M', 0], ['W', 0.72]].forEach(([l, a]) => {
+      g.save(); g.translate(128, 128); g.rotate(a); g.fillText(l, 0, -96); g.restore();
     });
     const t = new THREE.CanvasTexture(c);
     t.encoding = THREE.sRGBEncoding;
+    t.anisotropy = 8;
     return t;
   }
-  const logoTex = texturaLogo();
-  const logoMat = new THREE.MeshStandardMaterial({ map: logoTex, metalness: 0.3, roughness: 0.3 });
-  const logoCapo = new THREE.Mesh(new THREE.CircleGeometry(0.12, 40), logoMat);
-  logoCapo.rotation.x = -Math.PI / 2;
-  logoCapo.rotation.z = -Math.PI / 2;
-  logoCapo.rotation.y = -0.09;
-  logoCapo.position.set(1.85, 0.935, 0);
-  carro.add(logoCapo);
-  const logoMala = logoCapo.clone();
-  logoMala.rotation.set(0, -Math.PI / 2, 0);
-  logoMala.position.set(-2.3, 0.72, 0);
-  carro.add(logoMala);
+  function texturaPlaca(texto) {
+    const c = document.createElement('canvas');
+    c.width = 520; c.height = 170;
+    const g = c.getContext('2d');
+    g.fillStyle = '#f5f5f2'; g.fillRect(0, 0, 520, 170);
+    g.fillStyle = '#0a3d91'; g.fillRect(0, 0, 520, 42);
+    g.fillStyle = '#fff'; g.font = '600 24px Helvetica, Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('BRASIL', 260, 22);
+    // bandeirinha
+    g.fillStyle = '#009c3b'; g.fillRect(462, 9, 40, 26);
+    g.fillStyle = '#ffdf00'; g.beginPath(); g.moveTo(482, 11); g.lineTo(499, 22); g.lineTo(482, 33); g.lineTo(465, 22); g.fill();
+    g.fillStyle = '#002776'; g.beginPath(); g.arc(482, 22, 6, 0, Math.PI * 2); g.fill();
+    // texto da placa
+    g.fillStyle = '#151515';
+    g.font = 'bold 96px "Arial Narrow", Arial, sans-serif';
+    const largura = g.measureText(texto).width;
+    g.save();
+    g.translate(260, 110);
+    g.scale(Math.min(1, 470 / largura), 1);
+    g.fillText(texto, 0, 0);
+    g.restore();
+    g.strokeStyle = '#222'; g.lineWidth = 8; g.strokeRect(4, 4, 512, 162);
+    const t = new THREE.CanvasTexture(c);
+    t.encoding = THREE.sRGBEncoding;
+    t.anisotropy = 8;
+    return t;
+  }
 
-  // rodas
+  /* ---------- piso do showroom ---------- */
+  const piso = new THREE.Mesh(
+    new THREE.CircleGeometry(16, 96),
+    new THREE.MeshStandardMaterial({
+      color: 0x0e0c10, roughness: 0.75, metalness: 0.2, envMapIntensity: 0.3,
+      alphaMap: gradienteRadial([[0, '#fff'], [0.45, '#fff'], [1, '#000']]),
+      transparent: true,
+    })
+  );
+  piso.rotation.x = -Math.PI / 2;
+  piso.receiveShadow = true;
+  scene.add(piso);
+
+  const sombraContato = new THREE.Mesh(
+    new THREE.PlaneGeometry(5.6, 2.8),
+    new THREE.MeshBasicMaterial({
+      map: gradienteRadial([[0, 'rgba(0,0,0,0.85)'], [0.55, 'rgba(0,0,0,0.35)'], [1, 'rgba(0,0,0,0)']]),
+      transparent: true, depthWrite: false,
+    })
+  );
+  sombraContato.rotation.x = -Math.PI / 2;
+  sombraContato.position.y = 0.004;
+  scene.add(sombraContato);
+
+  const brilhoChao = new THREE.Mesh(
+    new THREE.PlaneGeometry(11, 11),
+    new THREE.MeshBasicMaterial({
+      map: gradienteRadial([[0, 'rgba(255,120,160,0.18)'], [0.5, 'rgba(255,120,160,0.04)'], [1, 'rgba(255,120,160,0)']]),
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    })
+  );
+  brilhoChao.rotation.x = -Math.PI / 2;
+  brilhoChao.position.y = 0.002;
+  scene.add(brilhoChao);
+
+  const aro = new THREE.Mesh(
+    new THREE.TorusGeometry(3.6, 0.008, 8, 160),
+    new THREE.MeshBasicMaterial({ color: 0xe3a3b7 })
+  );
+  aro.rotation.x = Math.PI / 2;
+  aro.position.y = 0.01;
+  scene.add(aro);
+
+  /* ---------- materiais do carro ---------- */
+  const M = {
+    pintura: new THREE.MeshPhysicalMaterial({
+      color: 0xd9849f, metalness: 0.55, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.3,
+    }),
+    vidro: new THREE.MeshPhysicalMaterial({ color: 0x07080b, metalness: 0.9, roughness: 0.04, clearcoat: 1, envMapIntensity: 1.6 }),
+    cromo: new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0.08 }),
+    pretoBrilho: new THREE.MeshStandardMaterial({ color: 0x060606, metalness: 0.6, roughness: 0.15 }),
+    pretoFosco: new THREE.MeshStandardMaterial({ color: 0x0c0c0c, metalness: 0.1, roughness: 0.6 }),
+    pneu: new THREE.MeshStandardMaterial({ color: 0x121212, roughness: 0.88, side: THREE.DoubleSide }),
+    roda: new THREE.MeshStandardMaterial({ color: 0x3a3d43, metalness: 1, roughness: 0.28 }),
+    disco: new THREE.MeshStandardMaterial({ color: 0x8a8a8a, metalness: 1, roughness: 0.45 }),
+    pinca: new THREE.MeshStandardMaterial({ color: 0x1c69d4, metalness: 0.3, roughness: 0.35 }),
+    farol: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xcfe6ff, emissiveIntensity: 0.25 }),
+    lanterna: new THREE.MeshStandardMaterial({ color: 0x4a0008, emissive: 0xff1030, emissiveIntensity: 0.35 }),
+    logo: new THREE.MeshStandardMaterial({ map: texturaLogo(), metalness: 0.4, roughness: 0.25 }),
+    placa: new THREE.MeshStandardMaterial({ map: texturaPlaca('MARIANA'), roughness: 0.45 }),
+    laco: new THREE.MeshPhysicalMaterial({ color: 0xd63b6b, roughness: 0.4, clearcoat: 0.7 }),
+  };
+
+  const carro = new THREE.Group();
+  scene.add(carro);
+  const add = (geo, mat, pos, rot, pai = carro) => {
+    const m = new THREE.Mesh(geo, mat);
+    if (pos) m.position.set(...pos);
+    if (rot) m.rotation.set(...rot);
+    m.castShadow = true;
+    pai.add(m);
+    return m;
+  };
+  const retArredondado = (w, h, r) => {
+    const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
+    s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r);
+    s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r);
+    s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y);
+    return s;
+  };
+
+  // carroceria (perfil lateral de cupê, com caixas de roda)
+  const perfil = new THREE.Shape();
+  perfil.moveTo(-2.15, 0.32);
+  perfil.lineTo(-1.87, 0.32);
+  perfil.absarc(-1.35, 0.4, 0.52, Math.PI, 0, true);
+  perfil.lineTo(0.83, 0.32);
+  perfil.absarc(1.35, 0.4, 0.52, Math.PI, 0, true);
+  perfil.lineTo(2.1, 0.32);
+  perfil.quadraticCurveTo(2.32, 0.34, 2.33, 0.55);
+  perfil.quadraticCurveTo(2.33, 0.8, 2.05, 0.86);
+  perfil.quadraticCurveTo(1.4, 0.95, 0.8, 1.0);
+  perfil.lineTo(-1.7, 1.02);
+  perfil.quadraticCurveTo(-2.15, 1.02, -2.25, 0.9);
+  perfil.quadraticCurveTo(-2.32, 0.6, -2.25, 0.4);
+  perfil.lineTo(-2.15, 0.32);
+  const corpoGeo = new THREE.ExtrudeGeometry(perfil, {
+    depth: 1.5, bevelEnabled: true, bevelThickness: 0.2, bevelSize: 0.1, bevelSegments: 10, curveSegments: 40,
+  });
+  corpoGeo.translate(0, 0, -0.75);
+  add(corpoGeo, M.pintura);
+
+  // cabine de vidro (mais estreita que a carroceria, como num carro de verdade)
+  const cabine = new THREE.Shape();
+  cabine.moveTo(0.78, 0.98);
+  cabine.quadraticCurveTo(0.35, 1.22, 0.02, 1.4);
+  cabine.quadraticCurveTo(-0.55, 1.51, -1.1, 1.41);
+  cabine.quadraticCurveTo(-1.55, 1.25, -1.88, 1.0);
+  cabine.lineTo(0.78, 0.98);
+  const cabineGeo = new THREE.ExtrudeGeometry(cabine, {
+    depth: 1.1, bevelEnabled: true, bevelThickness: 0.16, bevelSize: 0.06, bevelSegments: 8, curveSegments: 32,
+  });
+  cabineGeo.translate(0, 0, -0.55);
+  add(cabineGeo, M.vidro);
+
+  // grade "duplo rim"
+  [-0.18, 0.18].forEach(z => {
+    const moldura = retArredondado(0.3, 0.25, 0.08);
+    moldura.holes.push(retArredondado(0.25, 0.2, 0.06));
+    add(new THREE.ExtrudeGeometry(moldura, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 2 }),
+      M.cromo, [2.39, 0.64, z], [0, Math.PI / 2, 0]);
+    add(new THREE.ExtrudeGeometry(retArredondado(0.26, 0.21, 0.065), { depth: 0.02, bevelEnabled: false }),
+      M.pretoBrilho, [2.38, 0.64, z], [0, Math.PI / 2, 0]);
+    for (let i = -3; i <= 3; i++) add(new THREE.BoxGeometry(0.02, 0.2, 0.008), M.cromo, [2.415, 0.64, z + i * 0.034]);
+  });
+
+  // faróis com "angel eyes"
+  const olhosAnjo = [];
+  [-1, 1].forEach(l => {
+    add(new THREE.BoxGeometry(0.12, 0.1, 0.42), M.pretoBrilho, [2.34, 0.74, l * 0.62], [0, 0, -0.35]);
+    [0.52, 0.72].forEach(z => {
+      olhosAnjo.push(add(new THREE.TorusGeometry(0.048, 0.009, 8, 32), M.farol, [2.405, 0.745, l * z], [0, Math.PI / 2, 0]));
+      add(new THREE.CircleGeometry(0.04, 24), M.cromo, [2.398, 0.745, l * z], [0, Math.PI / 2, 0]);
+    });
+  });
+  // entrada de ar, splitter e placa dianteira
+  add(new THREE.BoxGeometry(0.06, 0.12, 1.5), M.pretoBrilho, [2.38, 0.42, 0]);
+  add(new THREE.BoxGeometry(0.3, 0.03, 1.7), M.pretoFosco, [2.25, 0.25, 0]);
+  add(new THREE.PlaneGeometry(0.44, 0.144), M.placa, [2.425, 0.43, 0], [0, Math.PI / 2, 0]);
+
+  // traseira: lanternas em L, difusor, escapes, placa e logo
+  [-1, 1].forEach(l => {
+    add(new THREE.BoxGeometry(0.05, 0.07, 0.42), M.lanterna, [-2.33, 0.9, l * 0.6]);
+    add(new THREE.BoxGeometry(0.05, 0.16, 0.07), M.lanterna, [-2.33, 0.84, l * 0.78]);
+    const escape = add(new THREE.CylinderGeometry(0.05, 0.05, 0.16, 24, 1, true), M.cromo, [-2.3, 0.3, l * 0.55], [0, 0, Math.PI / 2]);
+    escape.material = M.cromo;
+    add(new THREE.CircleGeometry(0.042, 24), M.pretoFosco, [-2.31, 0.3, l * 0.55], [0, -Math.PI / 2, 0]);
+  });
+  add(new THREE.BoxGeometry(0.1, 0.08, 1.0), M.pretoFosco, [-2.3, 0.3, 0]);
+  add(new THREE.PlaneGeometry(0.44, 0.144), M.placa, [-2.385, 0.58, 0], [0, -Math.PI / 2, 0]);
+  add(new THREE.CircleGeometry(0.075, 40), M.logo, [-2.392, 0.79, 0], [0, -Math.PI / 2, 0]);
+
+  // logo no capô
+  const logoCapo = new THREE.Group();
+  logoCapo.position.set(2.02, 0.968, 0);
+  logoCapo.rotation.z = -0.12;
+  add(new THREE.CircleGeometry(0.075, 40), M.logo, [0, 0, 0], [-Math.PI / 2, 0, -Math.PI / 2], logoCapo);
+  carro.add(logoCapo);
+
+  // detalhes laterais: retrovisores, maçanetas, frisos e saia
+  [-1, 1].forEach(l => {
+    add(new THREE.BoxGeometry(0.08, 0.035, 0.1), M.pretoFosco, [0.66, 1.06, l * 0.98]);
+    add(new THREE.SphereGeometry(0.1, 24, 16), M.pintura, [0.64, 1.09, l * 1.04]).scale.set(1.1, 0.55, 0.55);
+    add(new THREE.BoxGeometry(0.16, 0.025, 0.02), M.cromo, [-0.45, 0.92, l * 0.955]);
+    add(new THREE.BoxGeometry(0.008, 0.6, 0.006), M.pretoFosco, [0.79, 0.66, l * 0.951]);
+    add(new THREE.BoxGeometry(0.008, 0.6, 0.006), M.pretoFosco, [-0.8, 0.66, l * 0.951]);
+    add(new THREE.BoxGeometry(1.62, 0.07, 0.05), M.pretoFosco, [0, 0.27, l * 0.93]);
+  });
+
+  // antena "barbatana" com um lacinho da Kitty
+  add(new THREE.ConeGeometry(0.045, 0.12, 20), M.pretoBrilho, [-1.0, 1.52, 0]).scale.set(2.4, 1, 0.7);
+  const laco = new THREE.Group();
+  laco.position.set(-1.0, 1.62, 0);
+  [-1, 1].forEach(l => {
+    const aba = add(new THREE.SphereGeometry(0.06, 20, 14), M.laco, [l * 0.07, 0, 0], [0, 0, l * -0.3], laco);
+    aba.scale.set(1.3, 0.95, 0.5);
+  });
+  add(new THREE.SphereGeometry(0.03, 16, 12), M.laco, [0, 0, 0.01], null, laco);
+  carro.add(laco);
+
+  // rodas com raios em V, disco e pinça M azul
   const rodas = [];
-  function criarRoda() {
+  function criarRoda(lado) {
     const roda = new THREE.Group();
-    const pneu = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.3, 40), pneuMat);
-    pneu.rotation.x = Math.PI / 2;
-    pneu.castShadow = true;
-    roda.add(pneu);
-    const aro = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.32, 40), cromado);
-    aro.rotation.x = Math.PI / 2;
-    roda.add(aro);
-    const miolo = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.33, 40), preto);
-    miolo.rotation.x = Math.PI / 2;
-    roda.add(miolo);
+    const giro = new THREE.Group();
+    roda.add(giro);
+    const perfilPneu = [[0.27, -0.13], [0.35, -0.142], [0.39, -0.128], [0.404, -0.07], [0.404, 0.07], [0.39, 0.128], [0.35, 0.142], [0.27, 0.13]]
+      .map(([x, y]) => new THREE.Vector2(x, y));
+    add(new THREE.LatheGeometry(perfilPneu, 64), M.pneu, null, [Math.PI / 2, 0, 0], giro);
+    add(new THREE.CylinderGeometry(0.272, 0.272, 0.24, 48, 1, true), M.roda, null, [Math.PI / 2, 0, 0], giro).material.side = THREE.DoubleSide;
+    add(new THREE.TorusGeometry(0.266, 0.01, 8, 64), M.cromo, [0, 0, 0.115], null, giro);
+    const raioGeo = new THREE.BoxGeometry(0.25, 0.034, 0.03);
+    raioGeo.translate(0.135, 0, 0);
     for (let i = 0; i < 5; i++) {
-      const raio = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.06, 0.34), cromado);
-      raio.rotation.z = (i / 5) * Math.PI * 2;
-      roda.add(raio);
+      const a = (i / 5) * Math.PI * 2;
+      [-0.13, 0.13].forEach(k => add(raioGeo, M.roda, [0, 0, 0.1], [0, 0, a + k], giro));
     }
-    const cubo = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.36, 20), cromado);
-    cubo.rotation.x = Math.PI / 2;
-    roda.add(cubo);
+    add(new THREE.CylinderGeometry(0.07, 0.078, 0.05, 32), M.roda, [0, 0, 0.1], [Math.PI / 2, 0, 0], giro);
+    add(new THREE.CircleGeometry(0.038, 32), M.logo, [0, 0, 0.127], null, giro);
+    add(new THREE.CylinderGeometry(0.21, 0.21, 0.022, 48), M.disco, [0, 0, -0.01], [Math.PI / 2, 0, 0], giro);
+    add(new THREE.BoxGeometry(0.11, 0.17, 0.07), M.pinca, [0.12, 0.13, 0.02], [0, 0, -0.75], roda);
+    roda.rotation.y = lado > 0 ? 0 : Math.PI;
+    roda.userData.sentido = lado > 0 ? -1 : 1;
+    roda.userData.giro = giro;
     return roda;
   }
-  [[-1.3, -0.8], [-1.3, 0.8], [1.3, -0.8], [1.3, 0.8]].forEach(([x, z]) => {
-    const r = criarRoda();
-    r.position.set(x, 0.4, z);
+  [[-1.35, 1], [1.35, 1], [-1.35, -1], [1.35, -1]].forEach(([x, l]) => {
+    const r = criarRoda(l);
+    r.position.set(x, 0.404, l * 0.79);
     carro.add(r);
     rodas.push(r);
   });
 
-  // laço Hello Kitty no teto
-  const laco = new THREE.Group();
-  const lacoMat = new THREE.MeshPhysicalMaterial({ color: 0xff2d6f, roughness: 0.35, clearcoat: 0.6 });
-  [-1, 1].forEach(lado => {
-    const aba = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 16), lacoMat);
-    aba.scale.set(1.3, 0.95, 0.45);
-    aba.position.set(lado * 0.24, 0, 0);
-    aba.rotation.z = lado * -0.25;
-    aba.castShadow = true;
-    laco.add(aba);
+  // faróis de verdade (iluminam o chão quando ligados)
+  const fachos = [-0.6, 0.6].map(z => {
+    const s = new THREE.SpotLight(0xe6f1ff, 0, 12, 0.42, 0.7, 1);
+    s.position.set(2.4, 0.74, z);
+    s.target.position.set(7, 0, z * 1.5);
+    carro.add(s, s.target);
+    return s;
   });
-  const no = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 16), lacoMat);
-  no.scale.set(1, 1, 0.7);
-  no.position.z = 0.03;
-  laco.add(no);
-  laco.position.set(-0.45, 1.72, 0);
-  carro.add(laco);
 
-  carro.position.y = 0;
-  carro.traverse(o => { if (o.isMesh) o.castShadow = true; });
-
-  /* ---------- corações flutuantes ---------- */
-  const forma = new THREE.Shape();
-  forma.moveTo(5, 5);
-  forma.bezierCurveTo(5, 5, 4, 0, 0, 0);
-  forma.bezierCurveTo(-6, 0, -6, 7, -6, 7);
-  forma.bezierCurveTo(-6, 11, -3, 15.4, 5, 19);
-  forma.bezierCurveTo(12, 15.4, 16, 11, 16, 7);
-  forma.bezierCurveTo(16, 7, 16, 0, 10, 0);
-  forma.bezierCurveTo(7, 0, 5, 5, 5, 5);
-  const coracaoGeo = new THREE.ExtrudeGeometry(forma, {
-    depth: 4, bevelEnabled: true, bevelThickness: 2, bevelSize: 1.5, bevelSegments: 4, curveSegments: 20
-  });
-  coracaoGeo.center();
-  coracaoGeo.rotateZ(Math.PI);
-  coracaoGeo.scale(0.025, 0.025, 0.025);
-  const coresCoracao = [0xff2d6f, 0xff7eb3, 0xffb3d1, 0xe0115f];
-  const coracoes = [];
-  for (let i = 0; i < 22; i++) {
-    const m = new THREE.Mesh(coracaoGeo, new THREE.MeshPhysicalMaterial({
-      color: coresCoracao[i % coresCoracao.length], roughness: 0.3, clearcoat: 1,
-      emissive: 0xff2d6f, emissiveIntensity: 0.12
-    }));
-    const ang = Math.random() * Math.PI * 2;
-    const raio = 4.3 + Math.random() * 2.3;
-    m.position.set(Math.cos(ang) * raio, 0.8 + Math.random() * 4, Math.sin(ang) * raio);
-    const s = 0.45 + Math.random() * 0.6;
-    m.scale.setScalar(s);
-    m.userData = { base: m.position.y, fase: Math.random() * 10, vel: 0.4 + Math.random() * 0.8 };
-    scene.add(m);
-    coracoes.push(m);
+  /* ---------- partículas de luz (bokeh) ---------- */
+  const N = 220;
+  const pos = new Float32Array(N * 3);
+  const vel = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    const a = Math.random() * Math.PI * 2, r = 3 + Math.random() * 9;
+    pos[i * 3] = Math.cos(a) * r;
+    pos[i * 3 + 1] = Math.random() * 7;
+    pos[i * 3 + 2] = Math.sin(a) * r;
+    vel[i] = 0.08 + Math.random() * 0.25;
   }
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const particulas = new THREE.Points(pGeo, new THREE.PointsMaterial({
+    size: 0.09, color: 0xffb8cc, transparent: true, opacity: 0.7, depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    map: gradienteRadial([[0, 'rgba(255,255,255,1)'], [0.3, 'rgba(255,255,255,0.5)'], [1, 'rgba(255,255,255,0)']], 64),
+  }));
+  scene.add(particulas);
 
-  /* ---------- câmera com arrastar ---------- */
-  let theta = 0.9, phi = 1.2, raioCam = 9;
-  let arrastando = false, ultimoX = 0, ultimoY = 0, ultimoToque = 0, moveu = 0;
-  const alvo = new THREE.Vector3(0, 0.8, 0);
+  /* ---------- câmera: arrastar para girar ---------- */
+  const alvo = new THREE.Vector3(0, 0.75, 0);
+  let theta = 0.75, phi = 1.28, raioBase = 10, raio = 18;
+  let arrastando = false, ultX = 0, ultY = 0, ultimoToque = -1e9, movido = 0;
+  let velTheta = 0;
   canvas.addEventListener('pointerdown', e => {
-    arrastando = true; moveu = 0;
-    ultimoX = e.clientX; ultimoY = e.clientY;
+    arrastando = true; movido = 0; ultX = e.clientX; ultY = e.clientY;
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', e => {
     if (!arrastando) return;
-    const dx = e.clientX - ultimoX, dy = e.clientY - ultimoY;
-    moveu += Math.abs(dx) + Math.abs(dy);
-    theta -= dx * 0.008;
-    phi = Math.min(1.45, Math.max(0.5, phi - dy * 0.006));
-    ultimoX = e.clientX; ultimoY = e.clientY;
+    const dx = e.clientX - ultX, dy = e.clientY - ultY;
+    movido += Math.abs(dx) + Math.abs(dy);
+    velTheta = -dx * 0.006;
+    theta += velTheta;
+    phi = Math.min(1.48, Math.max(0.75, phi - dy * 0.004));
+    ultX = e.clientX; ultY = e.clientY;
     ultimoToque = performance.now();
   });
-  canvas.addEventListener('pointerup', e => {
-    arrastando = false;
-    if (moveu < 6) cliqueNoCarro(e);
-  });
+  canvas.addEventListener('pointerup', e => { arrastando = false; if (movido < 6) toque(e); });
   canvas.addEventListener('pointercancel', () => { arrastando = false; });
 
-  const ray = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-  function cliqueNoCarro(e) {
+  const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+  function toque(e) {
     const r = canvas.getBoundingClientRect();
-    mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1;
-    mouse.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(mouse, camera);
-    const hitCarro = ray.intersectObject(carro, true).length > 0;
-    const hitCoracao = ray.intersectObjects(coracoes).length > 0;
-    if (hitCarro) {
-      explodirCoracoes(e.clientX, e.clientY, 14);
-      pulo = 1; somFofo();
-    } else if (hitCoracao) {
-      explodirCoracoes(e.clientX, e.clientY, 8); somFofo();
+    if (ray.intersectObject(carro, true).length) {
+      explodir(e.clientX, e.clientY, 14);
+      somSino();
+      piscar = 1;
     }
   }
 
-  /* ---------- controles ---------- */
-  let velocidadeRoda = 0, acelerando = 0, pulo = 0, faroisLigados = false;
-  document.querySelectorAll('.cor').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.cor').forEach(b => b.classList.remove('ativa'));
-      btn.classList.add('ativa');
-      pintura.color.set(btn.dataset.cor);
-    });
+  /* ---------- painel ---------- */
+  const corAlvo = new THREE.Color(0xd9849f);
+  let metalAlvo = 0.55;
+  let ligado = false, acelerando = 0, velRoda = 0, piscar = 0;
+  document.querySelectorAll('.cor').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.cor').forEach(x => x.classList.remove('ativa'));
+    b.classList.add('ativa');
+    corAlvo.set(b.dataset.cor);
+    metalAlvo = parseFloat(b.dataset.metal);
+    document.getElementById('nomeCor').textContent = b.dataset.nome;
+  }));
+  const btnPartida = document.getElementById('btnPartida');
+  btnPartida.addEventListener('click', () => {
+    ligado = !ligado;
+    btnPartida.classList.toggle('ligado', ligado);
+    btnPartida.querySelector('span').textContent = ligado ? 'Desligar' : 'Dar partida';
+    if (ligado) somPartida();
   });
   document.getElementById('btnAcelerar').addEventListener('click', () => {
-    acelerando = 2.4; somMotor();
+    if (!ligado) { ligado = true; btnPartida.classList.add('ligado'); btnPartida.querySelector('span').textContent = 'Desligar'; }
+    acelerando = 2.6;
+    somAcelerar();
   });
   document.getElementById('btnBuzina').addEventListener('click', e => {
-    somBuzina(); pulo = 1;
+    somBuzina();
+    piscar = 1;
     const r = e.currentTarget.getBoundingClientRect();
-    explodirCoracoes(r.left + r.width / 2, r.top, 12);
-  });
-  document.getElementById('btnFarol').addEventListener('click', () => {
-    faroisLigados = !faroisLigados;
-    farolMat.emissiveIntensity = faroisLigados ? 2.5 : 0.4;
-    spots.forEach(s => { s.intensity = faroisLigados ? 3 : 0; });
+    explodir(r.left + r.width / 2, r.top, 10);
   });
 
-  /* ---------- resize + loop ---------- */
+  /* ---------- tamanho ---------- */
   function redimensionar() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    // em telas estreitas afasta a câmera pra o carro caber
-    raioCam = w < h ? 12.5 : 9;
+    const prop = w / h;
+    raioBase = prop < 0.6 ? 25 : prop < 0.8 ? 21 : prop < 1.2 ? 18 : 12.5;
+    alvo.y = prop < 0.8 ? -0.3 : prop < 1.2 ? 0.3 : 0.75;
     camera.updateProjectionMatrix();
   }
   window.addEventListener('resize', redimensionar);
@@ -503,158 +574,192 @@ function somFofo() {
   let visivel = true;
   new IntersectionObserver(([en]) => { visivel = en.isIntersecting; }).observe(canvas);
 
+  /* ---------- loop ---------- */
   const relogio = new THREE.Clock();
-  let tempo = 0;
-  function animar() {
-    requestAnimationFrame(animar);
+  let t = 0, primeiroQuadro = true;
+  function quadro() {
+    requestAnimationFrame(quadro);
     const dt = Math.min(relogio.getDelta(), 0.05);
     if (!visivel) return;
-    tempo += dt;
+    t += dt;
 
-    // giro automático quando ninguém está arrastando
-    if (!arrastando && performance.now() - ultimoToque > 2500) theta += dt * 0.25;
-
-    // aceleração
-    if (acelerando > 0) {
-      acelerando -= dt;
-      velocidadeRoda = Math.min(velocidadeRoda + dt * 40, 35);
-    } else {
-      velocidadeRoda = Math.max(velocidadeRoda - dt * 18, 0);
-    }
-    rodas.forEach(r => { r.rotation.z -= velocidadeRoda * dt; });
-    carro.rotation.z = acelerando > 0 ? 0.035 + Math.sin(tempo * 40) * 0.004 : carro.rotation.z * 0.9;
-    carro.position.x = Math.sin(tempo * 50) * 0.008 * (velocidadeRoda / 35);
-    anel.material.color.setHSL(0.93, 1, 0.55 + Math.sin(tempo * 3) * 0.08 + velocidadeRoda * 0.005);
-
-    // pulinho
-    if (pulo > 0) {
-      pulo = Math.max(0, pulo - dt * 1.6);
-      carro.position.y = Math.sin((1 - pulo) * Math.PI) * 0.35;
-      laco.rotation.z = Math.sin((1 - pulo) * Math.PI * 4) * 0.3 * pulo;
-    } else {
-      carro.position.y = 0;
-      laco.rotation.z = Math.sin(tempo * 2) * 0.06;
+    // entrada cinematográfica + giro automático
+    raio += (raioBase - raio) * Math.min(1, dt * 1.4);
+    if (!arrastando) {
+      velTheta *= 0.94;
+      theta += velTheta;
+      if (performance.now() - ultimoToque > 3000) theta += dt * 0.12;
     }
 
-    // corações
-    coracoes.forEach(c => {
-      const u = c.userData;
-      c.position.y = u.base + Math.sin(tempo * u.vel + u.fase) * 0.4;
-      c.rotation.y += dt * u.vel;
-    });
+    // pintura muda de cor suavemente
+    M.pintura.color.lerp(corAlvo, Math.min(1, dt * 4));
+    M.pintura.metalness += (metalAlvo - M.pintura.metalness) * Math.min(1, dt * 4);
 
-    // câmera
+    // luzes
+    const alvoFarol = ligado ? 3.2 : 0.25;
+    M.farol.emissiveIntensity += (alvoFarol - M.farol.emissiveIntensity) * Math.min(1, dt * 6);
+    M.lanterna.emissiveIntensity += ((ligado ? 2.2 : 0.35) - M.lanterna.emissiveIntensity) * Math.min(1, dt * 6);
+    if (piscar > 0) {
+      piscar = Math.max(0, piscar - dt * 2);
+      const pisca = Math.sin(piscar * Math.PI * 4) > 0 ? 4 : 0.3;
+      M.farol.emissiveIntensity = Math.max(M.farol.emissiveIntensity, pisca);
+    }
+    fachos.forEach(f => { f.intensity += ((ligado ? 2.5 : 0) - f.intensity) * Math.min(1, dt * 5); });
+
+    // motor
+    if (acelerando > 0) { acelerando -= dt; velRoda = Math.min(velRoda + dt * 30, 40); }
+    else velRoda = Math.max(velRoda - dt * 12, 0);
+    rodas.forEach(r => { r.userData.giro.rotation.z += r.userData.sentido * velRoda * dt; });
+    const vibra = ligado ? Math.sin(t * 60) * 0.0025 : 0;
+    carro.position.y = vibra;
+    carro.rotation.z += ((acelerando > 0 ? 0.02 : 0) - carro.rotation.z) * Math.min(1, dt * 4);
+    laco.rotation.z = Math.sin(t * 2.2) * 0.08 + (acelerando > 0 ? Math.sin(t * 25) * 0.15 : 0);
+    aro.material.color.setHSL(0.95, 0.55, 0.74 + Math.sin(t * 2) * 0.05);
+    aro.scale.setScalar(1 + (velRoda / 40) * 0.04);
+
+    // partículas sobem devagar
+    const p = pGeo.attributes.position.array;
+    for (let i = 0; i < N; i++) {
+      p[i * 3 + 1] += vel[i] * dt;
+      if (p[i * 3 + 1] > 7) p[i * 3 + 1] = 0;
+    }
+    pGeo.attributes.position.needsUpdate = true;
+
     camera.position.set(
-      alvo.x + raioCam * Math.sin(phi) * Math.cos(theta),
-      alvo.y + raioCam * Math.cos(phi),
-      alvo.z + raioCam * Math.sin(phi) * Math.sin(theta)
+      alvo.x + raio * Math.sin(phi) * Math.cos(theta),
+      alvo.y + raio * Math.cos(phi),
+      alvo.z + raio * Math.sin(phi) * Math.sin(theta)
     );
     camera.lookAt(alvo);
     renderer.render(scene, camera);
+
+    if (primeiroQuadro) {
+      primeiroQuadro = false;
+      canvas.classList.add('pronto');
+      carregando.classList.add('some');
+    }
   }
-  animar();
+  quadro();
 })();
 
 /* =========================================================
    HELLO KITTY
    ========================================================= */
-const kittyCard = document.getElementById('kittyCard');
-const balao = document.getElementById('balao');
-const lacoSvg = document.getElementById('laco');
-let fraseIdx = 0;
-kittyCard.addEventListener('pointermove', e => {
-  const r = kittyCard.getBoundingClientRect();
-  const x = (e.clientX - r.left) / r.width - 0.5;
-  const y = (e.clientY - r.top) / r.height - 0.5;
-  kittyCard.style.transform = `rotateY(${x * 28}deg) rotateX(${-y * 28}deg)`;
-});
-kittyCard.addEventListener('pointerleave', () => { kittyCard.style.transform = ''; });
-kittyCard.addEventListener('click', () => {
-  balao.textContent = FRASES_KITTY[fraseIdx % FRASES_KITTY.length];
-  fraseIdx++;
-  balao.classList.add('pop');
-  setTimeout(() => balao.classList.remove('pop'), 300);
-  lacoSvg.classList.remove('balanca');
-  void lacoSvg.getBoundingClientRect();
-  lacoSvg.classList.add('balanca');
-  somFofo();
-});
+(function kitty() {
+  const card = document.getElementById('kittyCard');
+  const recado = document.getElementById('recado');
+  const texto = document.getElementById('recadoTexto');
+  const laco = document.getElementById('laco');
+  let i = 0;
+  card.addEventListener('pointermove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    card.style.transform = `rotateY(${(x - 0.5) * 18}deg) rotateX(${(0.5 - y) * 18}deg)`;
+    card.style.setProperty('--bx', x * 100 + '%');
+    card.style.setProperty('--by', y * 100 + '%');
+  });
+  card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+  function novoRecado(e) {
+    texto.style.opacity = 0;
+    recado.classList.add('troca');
+    setTimeout(() => {
+      texto.textContent = RECADOS_KITTY[i++ % RECADOS_KITTY.length];
+      texto.style.opacity = 1;
+      recado.classList.remove('troca');
+    }, 300);
+    laco.classList.remove('balanca');
+    void laco.getBoundingClientRect();
+    laco.classList.add('balanca');
+    somSino();
+    if (e && e.clientX) explodir(e.clientX, e.clientY, 8);
+  }
+  card.addEventListener('click', novoRecado);
+  card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); novoRecado(); } });
+})();
 
 /* =========================================================
    CARTA
    ========================================================= */
-const envelope = document.getElementById('envelope');
-const textoCarta = document.getElementById('textoCarta');
-let cartaAberta = false;
-function abrirCarta() {
-  if (cartaAberta) return;
-  cartaAberta = true;
-  envelope.classList.add('aberto');
-  document.getElementById('cliqueCarta').style.visibility = 'hidden';
-  somFofo();
-  setTimeout(() => {
-    textoCarta.classList.add('mostrar');
-    let i = 0;
-    const cursor = '<span class="cursor-digita"></span>';
-    const escrever = () => {
-      i++;
-      textoCarta.innerHTML = CARTA.slice(0, i).replace(/</g, '&lt;') + cursor;
-      if (i < CARTA.length) {
-        const ch = CARTA[i - 1];
-        setTimeout(escrever, ch === '\n' ? 220 : ch === ',' || ch === '.' ? 120 : 28);
-      } else {
-        textoCarta.innerHTML = CARTA.replace(/</g, '&lt;');
-      }
-    };
-    escrever();
-  }, 1100);
-}
-envelope.addEventListener('click', abrirCarta);
-envelope.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrirCarta(); } });
+(function carta() {
+  const env = document.getElementById('envelope');
+  const art = document.getElementById('carta-texto');
+  const instrucao = document.getElementById('instrucao');
+  let aberta = false;
+  function abrir() {
+    if (aberta) return;
+    aberta = true;
+    env.classList.add('aberto');
+    instrucao.style.opacity = 0;
+    somSino();
+    const linhas = [`<p class="saudacao">${CARTA.saudacao}</p>`]
+      .concat(CARTA.paragrafos.map(p => `<p>${p}</p>`))
+      .concat(`<p class="assinatura">${CARTA.assinatura}</p>`);
+    setTimeout(() => {
+      art.innerHTML = linhas.join('');
+      art.classList.add('mostrar');
+      art.querySelectorAll('p').forEach((p, n) => setTimeout(() => p.classList.add('vis'), 400 + n * 650));
+      setTimeout(() => art.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }, 1300);
+  }
+  env.addEventListener('click', abrir);
+  env.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
+})();
 
 /* =========================================================
-   MOTIVOS (cards que viram em 3D)
+   MOTIVOS
    ========================================================= */
-const grade = document.getElementById('grade');
-MOTIVOS.forEach((m, i) => {
-  const card = document.createElement('div');
-  card.className = 'flip';
-  card.innerHTML = `
-    <div class="flip-inner">
-      <div class="face frente"><div class="emoji">${m.e}</div><b>Motivo #${i + 1}</b><small>toque para virar</small></div>
-      <div class="face verso${m.bmw ? ' bmw' : ''}">${m.t}</div>
-    </div>`;
-  card.addEventListener('click', () => card.classList.toggle('virado'));
-  grade.appendChild(card);
-});
+(function motivos() {
+  const grade = document.getElementById('grade');
+  MOTIVOS.forEach((m, i) => {
+    const el = document.createElement('div');
+    el.className = 'flip';
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.innerHTML = `
+      <div class="flip-inner">
+        <div class="face frente">
+          <span class="num">${String(i + 1).padStart(2, '0')}</span>
+          <div><div class="tit">${m.tit}</div><div class="toque">Toque para ler</div></div>
+        </div>
+        <div class="face verso${m.bmw ? ' bmw' : ''}">
+          ${m.bmw ? '<div class="m-faixas"><i></i><i></i><i></i></div>' : ''}
+          <p>${m.t}</p>
+        </div>
+      </div>`;
+    const virar = () => el.classList.toggle('virado');
+    el.addEventListener('click', virar);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); virar(); } });
+    grade.appendChild(el);
+  });
+})();
 
 /* =========================================================
    PERGUNTA FINAL
    ========================================================= */
-const btnNao = document.getElementById('btnNao');
-const textosNao = ['Não', 'Tem certeza?', 'Pensa bem...', 'Errou o botão 😜', 'Impossível!', 'Nem tenta 💕'];
-let fugas = 0;
-function fugir() {
-  btnNao.classList.add('fugindo');
-  const w = btnNao.offsetWidth, h = btnNao.offsetHeight;
-  btnNao.style.left = Math.random() * (window.innerWidth - w - 20) + 10 + 'px';
-  btnNao.style.top = Math.random() * (window.innerHeight - h - 20) + 10 + 'px';
-  btnNao.textContent = textosNao[++fugas % textosNao.length];
-}
-btnNao.addEventListener('pointerenter', fugir);
-btnNao.addEventListener('click', e => { e.preventDefault(); fugir(); });
-
-document.getElementById('btnSim').addEventListener('click', () => {
-  document.getElementById('resposta').classList.add('mostrar');
-  btnNao.style.display = 'none';
-  chuvaDeCoracoes(80);
-  somFofo();
-});
+(function final() {
+  const nao = document.getElementById('btnNao');
+  const frases = ['Não', 'Tem certeza?', 'Pensa bem…', 'Botão errado', 'Impossível', 'Nem tenta'];
+  let n = 0;
+  function fugir() {
+    nao.classList.add('fugindo');
+    nao.style.left = 10 + Math.random() * (window.innerWidth - nao.offsetWidth - 20) + 'px';
+    nao.style.top = 10 + Math.random() * (window.innerHeight - nao.offsetHeight - 20) + 'px';
+    nao.textContent = frases[++n % frases.length];
+  }
+  nao.addEventListener('pointerenter', fugir);
+  nao.addEventListener('click', e => { e.preventDefault(); fugir(); });
+  document.getElementById('btnSim').addEventListener('click', () => {
+    document.getElementById('resposta').classList.add('mostrar');
+    nao.style.display = 'none';
+    chuva(80);
+    somSino();
+  });
+})();
 
 /* =========================================================
    REVELAR AO ROLAR
    ========================================================= */
-const obs = new IntersectionObserver(entradas => {
-  entradas.forEach(en => { if (en.isIntersecting) { en.target.classList.add('visivel'); obs.unobserve(en.target); } });
-}, { threshold: 0.15 });
-document.querySelectorAll('.revelar').forEach(el => obs.observe(el));
+const observador = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('visivel'); observador.unobserve(e.target); }
+}), { threshold: 0.15 });
+document.querySelectorAll('.revelar').forEach(el => observador.observe(el));

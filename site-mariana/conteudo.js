@@ -70,3 +70,21 @@ export const VALES = [
   { emoji: '🍫', tit: 'Chocolate ilimitado', obs: 'resgate a qualquer momento de TPM ou não', tom: 'marfim' },
   { emoji: '💋', tit: '1.000 beijos', obs: 'parcelados em quantas vezes você quiser', tom: 'noir' },
 ];
+
+/* Minigame da corrida — abre quando ela aceita ser a co-piloto */
+export const CORRIDA = {
+  convite: 'Agora que você é minha co-piloto, a Kitty assumiu o volante. Desvie dos obstáculos, pegue os corações e chegue até o meu coração.',
+  // placas que aparecem pelo caminho, em ordem
+  placas: [
+    'Rua do primeiro olhar',
+    'Avenida das risadas',
+    'Ponte da saudade',
+    'Estrada dos abraços',
+    'Curva do "eu te amo"',
+    'Chegando no meu coração…',
+  ],
+  // frases quando a Kitty bate em alguma coisa
+  sustos: ['Ops! Nada nos para.', 'Foi só um susto!', 'A Kitty segurou firme!', 'Segue o amor!', 'Nem senti!'],
+  chegada: 'Você chegou ao meu coração.',
+  chegadaSub: 'E pode estacionar aqui pra sempre — ele é todinho seu.',
+};

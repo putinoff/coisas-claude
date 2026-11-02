@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=6">
 <!-- o carro da abertura começa a baixar junto com a página -->
 <link rel="preload" href="modelos/bmw.glb" as="fetch" crossorigin>
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" crossorigin>
@@ -249,8 +249,41 @@
       <button type="button" class="btn-fantasma" id="btnNao">Não</button>
     </div>
     <p class="resposta" id="resposta" aria-live="polite">Eu sabia. Te amo, Mariana.</p>
+    <button type="button" class="btn-fantasma btn-corrida" id="btnCorrida" hidden>Dirigir até o meu coração ♥</button>
   </section>
 </main>
+
+<!-- ================= MINIGAME: A KITTY DIRIGE ATÉ O CORAÇÃO ================= -->
+<div class="corrida" id="corrida" role="dialog" aria-modal="true" aria-labelledby="corridaTitulo" hidden>
+  <canvas id="corridaCanvas" tabindex="-1" aria-label="Minigame: a Hello Kitty dirige até o coração. Use as setas ou toque nos lados da tela para trocar de faixa."></canvas>
+  <div class="corrida-hud">
+    <div class="corrida-placar" aria-label="Corações coletados"><span aria-hidden="true">♥</span> <b id="corridaCoracoes">0</b></div>
+    <div class="corrida-rota" id="corridaRota" aria-hidden="true"><i></i><b>🎀</b><span>♥</span></div>
+    <button type="button" class="corrida-fechar" id="corridaFechar" aria-label="Sair do jogo">×</button>
+  </div>
+  <p class="corrida-placa" id="corridaPlaca" aria-live="polite"></p>
+  <div class="corrida-cartao" id="corridaInicio">
+    <p class="corrida-selo">Co-piloto oficial</p>
+    <h3 id="corridaTitulo">Rumo ao meu <em>coração</em></h3>
+    <p id="corridaConvite"></p>
+    <ul class="corrida-dicas">
+      <li><b>← →</b> ou toque nos lados da tela para trocar de faixa</li>
+      <li><b>♥</b> pegue os corações · desvie dos cones, poças e carros</li>
+      <li><b>★</b> a estrela dourada dá turbo</li>
+    </ul>
+    <button type="button" class="btn-principal" id="corridaPartir">Partiu!</button>
+  </div>
+  <div class="corrida-cartao" id="corridaFim" hidden>
+    <div class="corrida-coracao" aria-hidden="true">♥</div>
+    <h3 id="corridaChegada"></h3>
+    <p id="corridaChegadaSub"></p>
+    <p class="corrida-stats" id="corridaStats"></p>
+    <div class="corrida-botoes">
+      <button type="button" class="btn-principal" id="corridaDeNovo">Dirigir de novo</button>
+      <button type="button" class="btn-fantasma" id="corridaSair">Voltar pro site</button>
+    </div>
+  </div>
+</div>
 
 <footer class="rodape">
   <span class="marca">M<span>♥</span>L</span>
@@ -275,7 +308,7 @@
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
 } }
 </script>
-<script type="module" src="script.js?v=2"></script>
-<script type="module" src="showroom.js?v=2"></script>
+<script type="module" src="script.js?v=6"></script>
+<script type="module" src="showroom.js?v=6"></script>
 </body>
 </html>

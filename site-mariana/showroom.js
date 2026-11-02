@@ -25,6 +25,7 @@ const CARROS = [
     frase: 'Clássica e elegante, igualzinha a você.',
     pintura: /^paint$/,
     dividir: /^Cylinder00[01]_[012]$/, esterco: true, // rodas em pares e as da frente esterçadas
+    pincas: /^Cylinder00[01]_3$/, // pinças de freio: acompanham a roda, mas não giram
     farois: /^lights$/, lanternas: /^coat$/,
   },
   {
@@ -34,6 +35,23 @@ const CARROS = [
     pintura: /^Body_Color$/,
     rodas: /^wheel_(fl|fr|rl|rr)$/i,
     farois: /Projector_Glass|Turn_Signal/i, lanternas: /Taillight/i,
+    // o modelo vem com tudo fosco e claro: cromados de verdade, vidro fumê e interior escuro
+    materiais: {
+      metal_gray: { color: 0xc9cace, metalness: 1, roughness: 0.22 },
+      metal_chrome: { color: 0xffffff, metalness: 1, roughness: 0.06 },
+      Glass_Gray: { color: 0x0b0c0f, metalness: 0, roughness: 0.02, transparent: true, opacity: 0.55, envMapIntensity: 2.2 },
+      Projector_Glass: { color: 0xffffff, metalness: 0, roughness: 0.03, transparent: true, opacity: 0.35 },
+      Taillight_Glass: { roughness: 0.05, transparent: true },
+      Tires: { color: 0x141414, metalness: 0, roughness: 0.88 },
+      plastic_gray: { color: 0x232325, metalness: 0, roughness: 0.6 },
+      Interior_dark: { color: 0x1b1a1c, metalness: 0, roughness: 0.75 },
+      Interior_light: { color: 0x2e2a2c, metalness: 0, roughness: 0.7 },
+      Leather: { color: 0x2b2729, metalness: 0, roughness: 0.55 },
+      Leather_red: { color: 0x7a1f2b, metalness: 0, roughness: 0.5 },
+      Carpet: { color: 0x19181a, metalness: 0, roughness: 1 },
+      Carbon_Fiber: { color: 0x151517, metalness: 0.5, roughness: 0.3 },
+      Ferrari_Yellow: { metalness: 0.3, roughness: 0.35 },
+    },
   },
   {
     id: 'lambo', marca: 'Lamborghini', modelo: 'Urus', arquivo: 'modelos/lambo.glb',
@@ -56,7 +74,7 @@ const CARROS = [
     cv: '1.500 cv', zero: '2,4 s', vmax: '420 km/h', tom: 0.8,
     frase: '16 cilindros, e mesmo assim perde pro meu coração quando te vê.',
     pintura: /^paint_primary$/,
-    rodas: /^wheel_(FL|FR|RL|RR)$/,
+    rodas: /^wheel_(FL|FR|RL|RR)$/, esterco: true, // as da frente vêm viradas 13°
     farois: /headlight_emit|headlight_lens/i, lanternas: /taillight_emit/i,
   },
 ];
@@ -274,22 +292,26 @@ function montar(raiz, cfg) {
       else if (cfg.lanternas && cfg.lanternas.test(m.name)) { m.emissive = new THREE.Color(0xff1030); lanternas.push(m); }
       if (m.transparent || /glass|window|vidro|G1Mtl|Fg1Mtl/i.test(m.name)) { m.envMapIntensity = 1.6; m.roughness = Math.min(m.roughness ?? 0.1, 0.08); }
       else if ('envMapIntensity' in m) m.envMapIntensity = 1.1;
+      if (cfg.materiais && cfg.materiais[m.name]) m.setValues(cfg.materiais[m.name]);
       return m;
     };
     o.material = Array.isArray(o.material) ? o.material.map(trocar) : trocar(o.material);
   });
 
   // rodas: as peças de cada roda são agrupadas por proximidade e ganham
-  // um pivô no centro do pneu, girando no eixo real dela (rodas da frente
-  // podem estar esterçadas). Malhas que juntam várias rodas são divididas.
+  // um pivô no centro do pneu. Rodas que vêm esterçadas no modelo são
+  // endireitadas (o carro anda reto) e giram no próprio eixo; as pinças de
+  // freio acompanham o pivô sem girar. Malhas com várias rodas são divididas.
   const rodas = [];
   const pecas = [];
+  const juntas = re => {
+    const lista = [];
+    raiz.traverse(o => { if (o.isMesh && (re.test(o.name) || re.test(o.material.name))) lista.push(o); });
+    return lista.flatMap(dividirPorRoda);
+  };
   if (cfg.rodas) raiz.traverse(o => { if (cfg.rodas.test(o.name)) pecas.push(o); });
-  if (cfg.dividir) {
-    const juntas = [];
-    raiz.traverse(o => { if (o.isMesh && (cfg.dividir.test(o.name) || cfg.dividir.test(o.material.name))) juntas.push(o); });
-    juntas.forEach(o => pecas.push(...dividirPorRoda(o)));
-  }
+  if (cfg.dividir) pecas.push(...juntas(cfg.dividir));
+  const pincas = cfg.pincas ? juntas(cfg.pincas) : [];
   const grupos = [];
   pecas.filter(o => !pecas.some(a => a !== o && isAncestor(a, o))).forEach(o => {
     const b = new THREE.Box3().setFromObject(o, true);
@@ -301,13 +323,17 @@ function montar(raiz, cfg) {
     else { g.partes.push(o); if (tam > g.tam) Object.assign(g, { maior: o, box: b, tam }); }
   });
   grupos.forEach(g => {
-    const pivo = new THREE.Group();
+    const pivo = new THREE.Group(), giro = new THREE.Group();
     carro.add(pivo);
     pivo.position.copy(g.box.getCenter(new THREE.Vector3()));
+    pivo.add(giro);
     pivo.updateMatrixWorld(true);
-    pivo.userData.eixo = cfg.esterco ? eixoDaRoda(g.maior, pivo.position) : new THREE.Vector3(0, 0, 1);
-    g.partes.forEach(o => pivo.attach(o));
-    rodas.push(pivo);
+    const eixo = cfg.esterco ? eixoDaRoda(g.maior, pivo.position) : new THREE.Vector3(0, 0, 1);
+    g.partes.forEach(o => giro.attach(o));
+    pincas.filter(o => new THREE.Box3().setFromObject(o, true).getCenter(v3).distanceTo(pivo.position) < 0.45).forEach(o => pivo.attach(o));
+    pivo.rotation.y = -Math.atan2(eixo.x, eixo.z); // desfaz o esterço: o eixo volta a apontar para os lados
+    giro.userData.eixo = eixo;
+    rodas.push(giro);
   });
 
   // lacinho da Kitty no teto (acha o teto com um raio de cima para baixo)
@@ -362,6 +388,7 @@ function dividirPorRoda(o) {
     pedacos.push(m);
   });
   o.parent.remove(o);
+  o.geometry.dispose();
   return pedacos;
 }
 
@@ -457,7 +484,11 @@ async function escolher(cfg) {
     const ativo = b.dataset.id === cfg.id;
     b.classList.toggle('ativo', ativo);
     b.setAttribute('aria-selected', ativo);
-    if (ativo && atual) b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    // rola só a garagem (scrollIntoView arrastava a página inteira para o lado no celular)
+    if (ativo && atual) {
+      const gr = garagem.getBoundingClientRect(), br = b.getBoundingClientRect();
+      garagem.scrollTo({ left: garagem.scrollLeft + br.left - gr.left - (gr.width - br.width) / 2, behavior: 'smooth' });
+    }
   });
   trocarTexto(elMarca, cfg.marca); trocarTexto(elNome, cfg.modelo); trocarTexto(elFrase, cfg.frase);
   trocarTexto(elCv, cfg.cv); trocarTexto(elZero, cfg.zero); trocarTexto(elVmax, cfg.vmax);

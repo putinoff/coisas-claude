@@ -5,8 +5,9 @@
 import {
   CARTA, RECADOS_KITTY, RECADO_FINAL_KITTY, MOTIVOS, DATA_INICIO,
   DESEJOS_ESTRELAS, MENSAGEM_CONSTELACAO, VALES,
-} from './conteudo.js';
+} from './conteudo.js?v=6';
 import { reduzido, explodir, chuva, onda, reanimar, som, somSino, somNota, somBatida } from './efeitos.js';
+import { abrirCorrida } from './corrida.js?v=6';
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, '0');
@@ -626,7 +627,12 @@ function final() {
     explodir(x, y, 10);
     chuva(48);
     somSino();
+    // depois da comemoração, a Kitty pega o volante
+    setTimeout(abrirCorrida, 2600);
   });
+  const btnCorrida = $('btnCorrida');
+  btnCorrida.addEventListener('click', abrirCorrida);
+  document.addEventListener('corrida:fechou', () => { btnCorrida.hidden = false; });
 }
 
 /* =========================================================

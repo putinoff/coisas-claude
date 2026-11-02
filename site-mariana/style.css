@@ -185,6 +185,7 @@ svg { display: block; }
     radial-gradient(ellipse 80% 60% at 50% -10%, #1f191d 0%, var(--noir) 65%);
   color: var(--marfim);
   overflow: hidden;
+  overflow: clip; /* hidden ainda deixa rolar por código; clip não */
   isolation: isolate;
 }
 .hero::after { /* vinheta suave */
@@ -1020,6 +1021,76 @@ svg { display: block; }
   opacity: 0; transform: translateY(16px); visibility: hidden;
 }
 .resposta.mostrar { visibility: visible; animation: surge 1.4s var(--ease) both; }
+.btn-corrida { margin-top: 28px; animation: surge 1s var(--ease) both; }
+
+/* =========================================================
+   CORRIDA (minigame da Kitty)
+   ========================================================= */
+.corrida { position: fixed; inset: 0; z-index: 140; background: var(--noir); color: var(--marfim); overscroll-behavior: contain; }
+.corrida canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+.corrida-hud {
+  position: absolute; left: 16px; right: 16px; top: max(14px, env(safe-area-inset-top));
+  display: flex; align-items: center; gap: 16px;
+}
+.corrida-placar {
+  flex: none; min-width: 72px; padding: 6px 16px; border-radius: 999px;
+  font-family: var(--serif); font-size: 22px; line-height: 1.3; text-align: center;
+  background: rgba(16, 13, 15, .65); border: 1px solid rgba(198, 164, 106, .35);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.corrida-placar span { color: var(--rosa); }
+.corrida-placar b { font-weight: 500; }
+.corrida-rota { position: relative; flex: 1; height: 3px; margin-right: 14px; border-radius: 3px; background: rgba(255, 255, 255, .12); }
+.corrida-rota i {
+  position: absolute; inset: 0; border-radius: inherit; transform-origin: left; transform: scaleX(var(--p, 0));
+  background: linear-gradient(90deg, var(--ouro), var(--rosa));
+}
+.corrida-rota b { position: absolute; top: 50%; left: calc(var(--p, 0) * 100%); transform: translate(-50%, -55%); font-size: 18px; }
+.corrida-rota span { position: absolute; top: 50%; right: -14px; transform: translateY(-50%); font-size: 22px; color: var(--rosa); filter: drop-shadow(0 0 8px rgba(212, 139, 160, .8)); }
+.corrida-fechar {
+  flex: none; width: 42px; height: 42px; border-radius: 50%;
+  font-size: 24px; line-height: 1; color: rgba(250, 246, 240, .8);
+  background: rgba(16, 13, 15, .65); border: 1px solid rgba(255, 255, 255, .15);
+}
+.corrida-fechar:hover { color: var(--marfim); border-color: rgba(255, 255, 255, .35); }
+.corrida-placa {
+  position: absolute; left: 50%; top: calc(max(14px, env(safe-area-inset-top)) + 64px);
+  padding: 8px 22px 10px; border-radius: 12px; white-space: nowrap; text-align: center; pointer-events: none;
+  font-family: var(--serif); font-size: 20px;
+  background: rgba(16, 13, 15, .75); border: 1px solid rgba(198, 164, 106, .45);
+  opacity: 0; transform: translateX(-50%);
+}
+.corrida-placa small { display: block; font-family: var(--sans); font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: var(--ouro-claro); }
+.corrida-placa.mostrar { animation: placa 3s var(--ease) both; }
+@keyframes placa {
+  0% { opacity: 0; transform: translate(-50%, -12px); }
+  12%, 80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -6px); }
+}
+.corrida-cartao {
+  position: absolute; inset: 0; margin: auto; height: fit-content;
+  width: min(420px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow-y: auto;
+  padding: 30px 26px 26px; border-radius: 22px; text-align: center;
+  background: rgba(16, 13, 15, .8); border: 1px solid rgba(198, 164, 106, .3);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8);
+  animation: surge .8s var(--ease) both;
+}
+@media (min-height: 640px) { #corridaInicio { bottom: 30%; } } /* deixa a Kitty à vista embaixo */
+.corrida-selo { font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: var(--ouro-claro); }
+.corrida-cartao h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(32px, 8vw, 42px); line-height: 1.1; margin: 8px 0 12px; }
+.corrida-cartao h3 em { color: var(--rosa-claro); }
+.corrida-cartao p { font-size: 15px; color: rgba(250, 246, 240, .75); text-wrap: pretty; }
+.corrida-dicas { list-style: none; display: grid; gap: 8px; margin: 18px 0 22px; font-size: 13px; color: rgba(250, 246, 240, .6); }
+.corrida-dicas b { color: var(--ouro-claro); font-weight: 500; margin-right: 4px; }
+.corrida-cartao .btn-principal, .corrida-cartao .btn-fantasma { width: 100%; }
+.corrida-botoes { display: grid; gap: 10px; margin-top: 22px; }
+.corrida-coracao { font-size: 56px; line-height: 1; color: var(--rosa); filter: drop-shadow(0 0 18px rgba(212, 139, 160, .7)); animation: bate 1.3s ease-in-out infinite; }
+.corrida-stats { margin-top: 14px; font-size: 11px !important; letter-spacing: .2em; text-transform: uppercase; color: var(--ouro-claro) !important; }
+@media (max-width: 640px) {
+  .corrida-placar { font-size: 19px; min-width: 62px; padding: 5px 12px; }
+  .corrida-placa { font-size: 17px; }
+}
 
 /* =========================================================
    RODAPÉ

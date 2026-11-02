@@ -7,6 +7,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
+import { explodir, onda, somSino, motor, somBuzina, reduzido } from './efeitos.js';
 
 /* ---------- a garagem: edite à vontade ---------- */
 const CARROS = [
@@ -66,19 +67,29 @@ const canvas = document.getElementById('scene');
 const carregando = document.getElementById('carregando');
 const textoCarregando = carregando.querySelector('b');
 const leve = matchMedia('(pointer: coarse)').matches || innerWidth < 700;
+const avisar = (nome, detail) => document.dispatchEvent(new CustomEvent('showroom:' + nome, { detail }));
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, leve ? 1.5 : 2));
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+} catch (err) {
+  // sem WebGL: libera a abertura e explica no lugar do carro
+  textoCarregando.textContent = 'Este navegador não conseguiu abrir o showroom 3D.';
+  carregando.querySelector('span').remove();
+  avisar('pronto');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio, leve ? 1.5 : 1.75));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x0c0b0e, 12, 30);
+scene.fog = new THREE.Fog(0x0a090b, 12, 30);
 const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
 
-/* ---------- reflexos de estúdio (com um toque rosa) ---------- */
+/* ---------- reflexos de estúdio (rosa e dourado) ---------- */
 (function ambiente() {
   const pmrem = new THREE.PMREMGenerator(renderer);
   const estudio = new RoomEnvironment(renderer);
@@ -87,15 +98,15 @@ const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
     m.position.set(...pos); m.rotation.set(...rot);
     estudio.add(m);
   };
-  painel(0xff7aa8, 6, [-6, 6, -4], [0, Math.PI / 3, 0], 3, 6);
-  painel(0x8fb0ff, 4, [6, 6, -4], [0, -Math.PI / 3, 0], 3, 6);
+  painel(0xff8fb0, 5, [-6, 6, -4], [0, Math.PI / 3, 0], 3, 6);
+  painel(0xffd9a0, 4, [6, 6, -4], [0, -Math.PI / 3, 0], 3, 6);
   scene.environment = pmrem.fromScene(estudio, 0.04).texture;
   scene.environmentIntensity = 1;
   pmrem.dispose();
 })();
 
 /* ---------- luzes ---------- */
-scene.add(new THREE.HemisphereLight(0xffffff, 0x2a1a20, 0.6));
+scene.add(new THREE.HemisphereLight(0xfff6ee, 0x24161c, 0.6));
 const chave = new THREE.DirectionalLight(0xffffff, 2.2);
 chave.position.set(3, 9, 4);
 chave.castShadow = true;
@@ -105,12 +116,12 @@ chave.shadow.bias = -0.0003;
 chave.shadow.normalBias = 0.02;
 chave.shadow.radius = 5;
 scene.add(chave);
-const contraRosa = new THREE.SpotLight(0xff6f9c, 90, 0, 0.6, 1, 2);
+const contraRosa = new THREE.SpotLight(0xff7fa6, 85, 0, 0.6, 1, 2);
 contraRosa.position.set(-6, 4, -5);
 scene.add(contraRosa);
-const contraAzul = new THREE.SpotLight(0x6f9cff, 60, 0, 0.6, 1, 2);
-contraAzul.position.set(6, 3, -6);
-scene.add(contraAzul);
+const contraOuro = new THREE.SpotLight(0xffc98a, 70, 0, 0.6, 1, 2);
+contraOuro.position.set(6, 3, -6);
+scene.add(contraOuro);
 
 /* ---------- texturas simples desenhadas em canvas ---------- */
 function gradienteRadial(cores, tam = 256) {
@@ -160,7 +171,7 @@ scene.add(sombraContato);
 const brilhoChao = new THREE.Mesh(
   new THREE.PlaneGeometry(12, 12),
   new THREE.MeshBasicMaterial({
-    map: gradienteRadial([[0, 'rgba(255,120,160,0.2)'], [0.5, 'rgba(255,120,160,0.05)'], [1, 'rgba(255,120,160,0)']]),
+    map: gradienteRadial([[0, 'rgba(232,150,175,0.18)'], [0.5, 'rgba(232,150,175,0.05)'], [1, 'rgba(232,150,175,0)']]),
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   })
 );
@@ -168,13 +179,13 @@ brilhoChao.rotation.x = -Math.PI / 2;
 brilhoChao.position.y = 0.003;
 scene.add(brilhoChao);
 
-const aro = new THREE.Mesh(new THREE.TorusGeometry(3.7, 0.01, 8, 180), new THREE.MeshBasicMaterial({ color: 0xe3a3b7 }));
+const aro = new THREE.Mesh(new THREE.TorusGeometry(3.7, 0.008, 8, 180), new THREE.MeshBasicMaterial({ color: 0xc6a46a, transparent: true, opacity: 0.85 }));
 aro.rotation.x = Math.PI / 2;
 aro.position.y = 0.006;
 scene.add(aro);
 
-/* ---------- partículas de luz (bokeh) ---------- */
-const NP = 220;
+/* ---------- partículas de luz (bokeh), poucas e discretas ---------- */
+const NP = reduzido ? 0 : leve ? 50 : 90;
 const pPos = new Float32Array(NP * 3), pVel = new Float32Array(NP);
 for (let i = 0; i < NP; i++) {
   const a = Math.random() * Math.PI * 2, r = 3.5 + Math.random() * 9;
@@ -184,7 +195,7 @@ for (let i = 0; i < NP; i++) {
 const pGeo = new THREE.BufferGeometry();
 pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
 scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({
-  size: 0.09, color: 0xffb8cc, transparent: true, opacity: 0.7, depthWrite: false, blending: THREE.AdditiveBlending,
+  size: 0.08, color: 0xf3d9b0, transparent: true, opacity: 0.6, depthWrite: false, blending: THREE.AdditiveBlending,
   map: gradienteRadial([[0, 'rgba(255,255,255,1)'], [0.3, 'rgba(255,255,255,0.5)'], [1, 'rgba(255,255,255,0)']], 64),
 })));
 
@@ -379,10 +390,11 @@ function isAncestor(a, o) { for (let p = o.parent; p; p = p.parent) if (p === a)
 
 /* ---------- câmera: arrastar para girar ---------- */
 const alvo = new THREE.Vector3(0, 0.7, 0);
-let theta = 0.75, phi = 1.3, raioBase = 10, raio = 18;
+let theta = 0.35, phi = 1.02, raioBase = 10, raio = reduzido ? 12 : 19;
 let arrastando = false, ultX = 0, ultY = 0, ultimoToque = -1e9, movido = 0, velTheta = 0;
+let abertura = reduzido ? 1 : 0; // movimento de câmera da entrada (0 → 1)
 canvas.addEventListener('pointerdown', e => {
-  arrastando = true; movido = 0; ultX = e.clientX; ultY = e.clientY;
+  arrastando = true; movido = 0; ultX = e.clientX; ultY = e.clientY; abertura = 1;
   try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
 });
 canvas.addEventListener('pointermove', e => {
@@ -405,7 +417,7 @@ function toque(e) {
   mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(mouse, camera);
   if (ray.intersectObject(atual, true).length) {
-    explodir(e.clientX, e.clientY, 14);
+    explodir(e.clientX, e.clientY, 8);
     somSino();
     piscar = 1;
   }
@@ -423,11 +435,13 @@ const elVmax = document.getElementById('specVmax');
 
 CARROS.forEach((c, i) => {
   const b = document.createElement('button');
+  b.type = 'button';
   b.className = 'carro-chip' + (i === 0 ? ' ativo' : '');
   b.setAttribute('role', 'tab');
+  b.setAttribute('aria-selected', i === 0);
   b.dataset.id = c.id;
   b.innerHTML = `<small>${c.marca}</small><span>${c.modelo}</span>`;
-  b.addEventListener('click', () => escolher(c));
+  b.addEventListener('click', e => { onda(b, e.clientX, e.clientY); escolher(c); });
   garagem.appendChild(b);
 });
 
@@ -439,17 +453,25 @@ function trocarTexto(el, t) {
 async function escolher(cfg) {
   if (atual && atual.userData.cfg === cfg) return;
   const meu = ++pedido;
-  garagem.querySelectorAll('.carro-chip').forEach(b => b.classList.toggle('ativo', b.dataset.id === cfg.id));
+  garagem.querySelectorAll('.carro-chip').forEach(b => {
+    const ativo = b.dataset.id === cfg.id;
+    b.classList.toggle('ativo', ativo);
+    b.setAttribute('aria-selected', ativo);
+    if (ativo && atual) b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  });
   trocarTexto(elMarca, cfg.marca); trocarTexto(elNome, cfg.modelo); trocarTexto(elFrase, cfg.frase);
   trocarTexto(elCv, cfg.cv); trocarTexto(elZero, cfg.zero); trocarTexto(elVmax, cfg.vmax);
   carregando.classList.remove('some');
   textoCarregando.textContent = `Trazendo ${cfg.marca === 'BMW' ? 'a' : 'o'} ${cfg.marca}…`;
   try {
     const carro = await carregar(cfg, p => {
-      if (meu === pedido) textoCarregando.textContent = `Trazendo ${cfg.marca === 'BMW' ? 'a' : 'o'} ${cfg.marca}… ${Math.round(p * 100)}%`;
+      if (meu !== pedido) return;
+      textoCarregando.textContent = `Trazendo ${cfg.marca === 'BMW' ? 'a' : 'o'} ${cfg.marca}… ${Math.round(p * 100)}%`;
+      if (!atual) avisar('progresso', p);
     });
     if (meu !== pedido) return;
     carregando.classList.add('some');
+    if (!atual) avisar('pronto');
     if (atual) {
       if (saindo) scene.remove(saindo);
       saindo = atual;
@@ -465,14 +487,17 @@ async function escolher(cfg) {
   } catch (err) {
     console.error(err);
     if (meu === pedido) textoCarregando.textContent = 'Não consegui trazer esse carro agora.';
+    avisar('pronto');
   }
 }
 
 /* ---------- painel ---------- */
 let ligado = false, acelerando = 0, velRoda = 0, piscar = 0;
-document.querySelectorAll('.cor').forEach(b => b.addEventListener('click', () => {
-  document.querySelectorAll('.cor').forEach(x => x.classList.remove('ativa'));
+const botoesCor = document.querySelectorAll('.cor');
+botoesCor.forEach(b => b.addEventListener('click', () => {
+  botoesCor.forEach(x => { x.classList.remove('ativa'); x.setAttribute('aria-checked', 'false'); });
   b.classList.add('ativa');
+  b.setAttribute('aria-checked', 'true');
   corAlvo.set(b.dataset.cor);
   metalAlvo = parseFloat(b.dataset.metal);
   document.getElementById('nomeCor').textContent = b.dataset.nome;
@@ -484,13 +509,16 @@ const btnPartida = document.getElementById('btnPartida');
 function ligar(v) {
   ligado = v;
   btnPartida.classList.toggle('ligado', ligado);
+  btnPartida.setAttribute('aria-pressed', ligado);
   btnPartida.querySelector('span').textContent = ligado ? 'Desligar' : 'Dar partida';
 }
-btnPartida.addEventListener('click', () => {
+btnPartida.addEventListener('click', e => {
+  onda(btnPartida, e.clientX, e.clientY);
   ligar(!ligado);
   if (ligado) motor(escalaCurva([[0, 30], [0.35, 38], [0.6, 140], [1.0, 70], [2.2, 52]], tom()), 2.4, 0.14);
 });
-document.getElementById('btnAcelerar').addEventListener('click', () => {
+document.getElementById('btnAcelerar').addEventListener('click', e => {
+  onda(e.currentTarget, e.clientX, e.clientY);
   if (!ligado) ligar(true);
   acelerando = 2.6;
   motor(escalaCurva([[0, 55], [0.8, 200], [1.0, 130], [1.8, 260], [2.6, 58]], tom()), 2.8, 0.17);
@@ -498,8 +526,9 @@ document.getElementById('btnAcelerar').addEventListener('click', () => {
 document.getElementById('btnBuzina').addEventListener('click', e => {
   somBuzina();
   piscar = 1;
+  onda(e.currentTarget, e.clientX, e.clientY);
   const r = e.currentTarget.getBoundingClientRect();
-  explodir(r.left + r.width / 2, r.top, 10);
+  explodir(r.left + r.width / 2, r.top, 6);
 });
 
 /* ---------- tamanho ---------- */
@@ -541,8 +570,14 @@ function quadro() {
   if (!visivel) return;
   t += dt;
 
-  raio += (raioBase - raio) * Math.min(1, dt * 1.4);
-  if (!arrastando) {
+  raio += (raioBase - raio) * Math.min(1, dt * (abertura < 1 ? 0.9 : 1.4));
+  if (abertura < 1 && atual) {
+    // entrada: a câmera desce e contorna o carro enquanto ele chega
+    abertura = Math.min(1, abertura + dt * 0.32);
+    const e = 1 - Math.pow(1 - abertura, 3);
+    phi = 1.02 + (1.3 - 1.02) * e;
+    theta = 0.35 + (0.75 - 0.35) * e;
+  } else if (!arrastando) {
     velTheta *= 0.94;
     theta += velTheta;
     if (performance.now() - ultimoToque > 3000) theta += dt * 0.12;
@@ -580,15 +615,17 @@ function quadro() {
     animarLuzes(saindo, dt, false);
     if (saindo.position.x > 18) { scene.remove(saindo); saindo.position.x = 0; saindo.userData.vel = 0; saindo = null; }
   }
-  aro.material.color.setHSL(0.95, 0.55, 0.74 + Math.sin(t * 2) * 0.05);
+  aro.material.opacity = 0.7 + Math.sin(t * 1.6) * 0.15;
   aro.scale.setScalar(1 + (velRoda / 40) * 0.04);
 
-  const p = pGeo.attributes.position.array;
-  for (let i = 0; i < NP; i++) {
-    p[i * 3 + 1] += pVel[i] * dt;
-    if (p[i * 3 + 1] > 7) p[i * 3 + 1] = 0;
+  if (NP) {
+    const p = pGeo.attributes.position.array;
+    for (let i = 0; i < NP; i++) {
+      p[i * 3 + 1] += pVel[i] * dt;
+      if (p[i * 3 + 1] > 7) p[i * 3 + 1] = 0;
+    }
+    pGeo.attributes.position.needsUpdate = true;
   }
-  pGeo.attributes.position.needsUpdate = true;
 
   camera.position.set(
     alvo.x + raio * Math.sin(phi) * Math.cos(theta),

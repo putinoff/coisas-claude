@@ -2,51 +2,65 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Mariana — Edição Única</title>
 <meta name="description" content="Um site feito só para a Mariana.">
+<meta name="theme-color" content="#0a090b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500;1,600&family=Great+Vibes&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<!-- o carro da abertura começa a baixar junto com a página -->
+<link rel="preload" href="modelos/bmw.glb" as="fetch" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" crossorigin>
 </head>
 <body>
 
-<div class="progresso" id="progresso" aria-hidden="true"></div>
-<canvas id="fundo" aria-hidden="true"></canvas>
-<nav class="pontos" id="pontos" aria-label="Seções">
-  <a href="#kitty" data-nome="Kitty"></a>
-  <a href="#tempo" data-nome="Nosso tempo"></a>
-  <a href="#carta" data-nome="Carta"></a>
-  <a href="#motivos" data-nome="Motivos"></a>
-  <a href="#ceu" data-nome="Constelação"></a>
-  <a href="#vales" data-nome="Vales"></a>
-  <a href="#final" data-nome="Pra você"></a>
-</nav>
+<!-- ================= ABERTURA ================= -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-marca">M<span>♥</span>L</div>
+  <div class="intro-linha"><i id="introBarra"></i></div>
+  <p class="intro-texto">Preparando algo especial</p>
+</div>
+
+<!-- ================= TOPO FIXO ================= -->
+<header class="topo" id="topo">
+  <a href="#hero" class="marca" aria-label="Voltar ao início">M<span>♥</span>L</a>
+  <nav class="menu" id="menu" aria-label="Seções">
+    <a href="#kitty"><small>01</small>Kitty</a>
+    <a href="#tempo"><small>02</small>Nosso tempo</a>
+    <a href="#carta"><small>03</small>Carta</a>
+    <a href="#motivos"><small>04</small>Motivos</a>
+    <a href="#ceu"><small>05</small>Estrelas</a>
+    <a href="#vales"><small>06</small>Vales</a>
+    <a href="#final"><small>07</small>Pra você</a>
+  </nav>
+  <div class="topo-acoes">
+    <button class="btn-icone" id="btnSom" type="button" aria-pressed="true" aria-label="Desligar o som">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path class="onda-som" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="mudo" d="M16 9l5 6M21 9l-5 6"/></svg>
+    </button>
+    <button class="btn-icone btn-menu" id="btnMenu" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir o menu">
+      <i></i><i></i>
+    </button>
+  </div>
+  <div class="progresso" id="progresso" aria-hidden="true"></div>
+</header>
 
 <!-- ================= HERO / SHOWROOM 3D ================= -->
-<header id="hero">
-  <canvas id="scene" aria-label="Carro de luxo em 3D girando num showroom"></canvas>
-
-  <nav class="nav">
-    <a href="#hero" class="marca">M<span>♥</span>L</a>
-    <ul>
-      <li><a href="#kitty">Kitty</a></li>
-      <li><a href="#tempo">Tempo</a></li>
-      <li><a href="#carta">Carta</a></li>
-      <li><a href="#ceu">Estrelas</a></li>
-      <li><a href="#vales">Vales</a></li>
-      <li><a href="#final">Pra você</a></li>
-    </ul>
-  </nav>
+<section id="hero" class="hero">
+  <canvas id="scene" aria-label="Carro de luxo em 3D num showroom. Arraste para girar."></canvas>
+  <div class="hero-luz" aria-hidden="true"></div>
 
   <div class="hero-titulo">
-    <p class="eyebrow">Edição limitada · Unidade única no mundo</p>
-    <h1>Mariana</h1>
+    <p class="eyebrow hero-eyebrow">Edição limitada · Unidade única no mundo</p>
+    <h1 class="nome" aria-label="Mariana">
+      <span style="--i:0" aria-hidden="true">M</span><span style="--i:1" aria-hidden="true">a</span><span style="--i:2" aria-hidden="true">r</span><span style="--i:3" aria-hidden="true">i</span><span style="--i:4" aria-hidden="true">a</span><span style="--i:5" aria-hidden="true">n</span><span style="--i:6" aria-hidden="true">a</span>
+    </h1>
     <p class="hero-sub">Feita sob medida, com acabamento em amor.</p>
   </div>
 
-  <div class="carregando" id="carregando"><span></span><b>Preparando o showroom…</b></div>
+  <div class="carregando" id="carregando" role="status"><span></span><b>Preparando o showroom…</b></div>
 
   <div class="controles">
     <p class="dica">Arraste para girar · toque no carro · escolha outro na garagem</p>
@@ -60,96 +74,102 @@
       <div class="painel-specs">
         <div><small>Potência</small><strong id="specCv">550 cv</strong></div>
         <div><small>0–100 km/h</small><strong id="specZero">3,7 s</strong></div>
-        <div><small>Vel. máxima</small><strong id="specVmax">307 km/h</strong></div>
+        <div><small>Vel. máx.</small><strong id="specVmax">307 km/h</strong></div>
       </div>
       <div class="painel-cor">
         <small>Pintura · <span id="nomeCor">Rosa Mariana</span></small>
-        <div class="cores" id="cores">
-          <button class="cor ativa" data-cor="#d9849f" data-metal="0.55" data-nome="Rosa Mariana" style="--c:#d9849f" aria-label="Rosa Mariana"></button>
-          <button class="cor" data-cor="#1a4fa8" data-metal="0.7" data-nome="Portimão Blue" style="--c:#1a4fa8" aria-label="Portimão Blue"></button>
-          <button class="cor" data-cor="#0b0c10" data-metal="0.6" data-nome="Black Sapphire" style="--c:#0b0c10" aria-label="Black Sapphire"></button>
-          <button class="cor" data-cor="#eceef0" data-metal="0.1" data-nome="Alpine White" style="--c:#eceef0" aria-label="Alpine White"></button>
-          <button class="cor" data-cor="#8a0f22" data-metal="0.65" data-nome="Rosso Corsa" style="--c:#8a0f22" aria-label="Rosso Corsa"></button>
-          <button class="cor" data-cor="#e8b100" data-metal="0.45" data-nome="Giallo Modena" style="--c:#e8b100" aria-label="Giallo Modena"></button>
-          <button class="cor" data-cor="#0f5c47" data-metal="0.7" data-nome="Verde Esmeralda" style="--c:#0f5c47" aria-label="Verde Esmeralda"></button>
+        <div class="cores" id="cores" role="radiogroup" aria-label="Cor da pintura">
+          <button type="button" class="cor ativa" role="radio" aria-checked="true" data-cor="#d9849f" data-metal="0.55" data-nome="Rosa Mariana" style="--c:#d9849f" aria-label="Rosa Mariana"></button>
+          <button type="button" class="cor" role="radio" aria-checked="false" data-cor="#b8976a" data-metal="0.75" data-nome="Champagne" style="--c:#b8976a" aria-label="Champagne"></button>
+          <button type="button" class="cor" role="radio" aria-checked="false" data-cor="#0b0c10" data-metal="0.6" data-nome="Black Sapphire" style="--c:#0b0c10" aria-label="Black Sapphire"></button>
+          <button type="button" class="cor" role="radio" aria-checked="false" data-cor="#eceef0" data-metal="0.1" data-nome="Alpine White" style="--c:#eceef0" aria-label="Alpine White"></button>
+          <button type="button" class="cor" role="radio" aria-checked="false" data-cor="#1a4fa8" data-metal="0.7" data-nome="Portimão Blue" style="--c:#1a4fa8" aria-label="Portimão Blue"></button>
+          <button type="button" class="cor" role="radio" aria-checked="false" data-cor="#8a0f22" data-metal="0.65" data-nome="Rosso Corsa" style="--c:#8a0f22" aria-label="Rosso Corsa"></button>
+          <button type="button" class="cor" role="radio" aria-checked="false" data-cor="#e8b100" data-metal="0.45" data-nome="Giallo Modena" style="--c:#e8b100" aria-label="Giallo Modena"></button>
+          <button type="button" class="cor" role="radio" aria-checked="false" data-cor="#0f5c47" data-metal="0.7" data-nome="Verde Esmeralda" style="--c:#0f5c47" aria-label="Verde Esmeralda"></button>
         </div>
       </div>
       <div class="painel-acoes">
-        <button class="btn-vidro" id="btnPartida">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5"/></svg>
+        <button type="button" class="btn-vidro" id="btnPartida" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 6.8a8 8 0 1 0 9 0"/><path d="M12 3.5v8"/></svg>
           <span>Dar partida</span>
         </button>
-        <button class="btn-vidro" id="btnAcelerar">
-          <svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>
+        <button type="button" class="btn-vidro" id="btnAcelerar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>
           <span>Acelerar</span>
         </button>
-        <button class="btn-vidro" id="btnBuzina">
-          <svg viewBox="0 0 24 24"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
+        <button type="button" class="btn-vidro" id="btnBuzina">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
           <span>Buzina</span>
         </button>
       </div>
     </div>
   </div>
-</header>
+
+  <a href="#kitty" class="rolar" aria-label="Rolar para a próxima seção"><span>Role</span><i></i></a>
+</section>
 
 <main>
   <!-- ================= HELLO KITTY ================= -->
-  <section class="secao tema-kitty" id="kitty" data-cores="#ff8fb3,#ffc4a8,#c9a7ff,#ff5c8a">
-    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-    <div class="duas-colunas">
+  <section class="secao secao-marfim" id="kitty">
+    <div class="duas-colunas kitty-grade">
       <div class="texto revelar">
-        <p class="eyebrow escuro">01 — A favorita dela</p>
+        <p class="eyebrow"><b>01</b>A favorita dela</p>
         <h2>Hello, <em>Mariana.</em></h2>
         <p>Dizem que a Hello Kitty não tem boca porque fala com o coração. Faz sentido: tem coisa que eu sinto por você que não cabe em palavra nenhuma.</p>
         <p>Mas a Kitty deixou uns recadinhos. É só tocar nela.</p>
-        <div class="recado" id="recado" aria-live="polite">
-          <span class="recado-aspas">“</span>
-          <p id="recadoTexto">Toque na Kitty para receber um recado.</p>
-        </div>
+      </div>
+      <div class="recado revelar" id="recado" aria-live="polite">
+        <small class="recado-num" id="recadoNum">Recados da Kitty</small>
+        <p id="recadoTexto">Toque na Kitty para receber um recado.</p>
+        <div class="recado-pontos" id="recadoPontos" aria-hidden="true"></div>
       </div>
       <div class="kitty-palco revelar">
-        <div class="kitty-card" id="kittyCard" role="button" tabindex="0" aria-label="Receber recado da Kitty">
-          <div class="kitty-brilho"></div>
-          <svg viewBox="0 0 300 260" aria-hidden="true">
-            <path d="M64 96 L54 22 Q56 10 68 16 L130 54 Z" fill="#fff" stroke="#1d1a1c" stroke-width="6" stroke-linejoin="round"/>
-            <path d="M236 96 L246 22 Q244 10 232 16 L170 54 Z" fill="#fff" stroke="#1d1a1c" stroke-width="6" stroke-linejoin="round"/>
-            <ellipse cx="150" cy="142" rx="126" ry="96" fill="#fff" stroke="#1d1a1c" stroke-width="6"/>
-            <ellipse class="olho" cx="101" cy="150" rx="10" ry="14" fill="#1d1a1c"/>
-            <ellipse class="olho" cx="199" cy="150" rx="10" ry="14" fill="#1d1a1c"/>
-            <ellipse cx="150" cy="174" rx="13" ry="9" fill="#f5c518" stroke="#1d1a1c" stroke-width="4.5"/>
-            <g stroke="#1d1a1c" stroke-width="5" stroke-linecap="round">
-              <line x1="12" y1="142" x2="58" y2="150"/><line x1="8" y1="170" x2="56" y2="170"/><line x1="14" y1="198" x2="58" y2="188"/>
-              <line x1="288" y1="142" x2="242" y2="150"/><line x1="292" y1="170" x2="244" y2="170"/><line x1="286" y1="198" x2="242" y2="188"/>
-            </g>
-            <g class="laco" id="laco">
-              <path d="M210 54 Q172 10 180 60 Q174 104 212 72 Z" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5" stroke-linejoin="round"/>
-              <path d="M232 62 Q274 22 276 68 Q284 110 236 86 Z" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5" stroke-linejoin="round"/>
-              <circle cx="222" cy="70" r="16" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5"/>
+        <div class="kitty-card" id="kittyCard" role="button" tabindex="0" aria-label="Tocar na Kitty para receber um recado">
+          <div class="kitty-brilho" aria-hidden="true"></div>
+          <svg class="kitty" id="kittySvg" viewBox="0 0 300 260" aria-hidden="true">
+            <g class="kitty-cabeca">
+              <path d="M64 96 L54 22 Q56 10 68 16 L130 54 Z" fill="#fff" stroke="#1d1a1c" stroke-width="6" stroke-linejoin="round"/>
+              <path d="M236 96 L246 22 Q244 10 232 16 L170 54 Z" fill="#fff" stroke="#1d1a1c" stroke-width="6" stroke-linejoin="round"/>
+              <ellipse cx="150" cy="142" rx="126" ry="96" fill="#fff" stroke="#1d1a1c" stroke-width="6"/>
+              <ellipse class="bochecha" cx="80" cy="180" rx="17" ry="9" fill="#f4a6bb"/>
+              <ellipse class="bochecha" cx="220" cy="180" rx="17" ry="9" fill="#f4a6bb"/>
+              <ellipse class="olho olho-esq" cx="101" cy="150" rx="10" ry="14" fill="#1d1a1c"/>
+              <ellipse class="olho olho-dir" cx="199" cy="150" rx="10" ry="14" fill="#1d1a1c"/>
+              <ellipse cx="150" cy="174" rx="13" ry="9" fill="#f5c518" stroke="#1d1a1c" stroke-width="4.5"/>
+              <g stroke="#1d1a1c" stroke-width="5" stroke-linecap="round">
+                <line x1="12" y1="142" x2="58" y2="150"/><line x1="8" y1="170" x2="56" y2="170"/><line x1="14" y1="198" x2="58" y2="188"/>
+                <line x1="288" y1="142" x2="242" y2="150"/><line x1="292" y1="170" x2="244" y2="170"/><line x1="286" y1="198" x2="242" y2="188"/>
+              </g>
+              <g class="laco" id="laco">
+                <path d="M210 54 Q172 10 180 60 Q174 104 212 72 Z" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5" stroke-linejoin="round"/>
+                <path d="M232 62 Q274 22 276 68 Q284 110 236 86 Z" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5" stroke-linejoin="round"/>
+                <circle cx="222" cy="70" r="16" fill="#d63b6b" stroke="#1d1a1c" stroke-width="5"/>
+              </g>
             </g>
           </svg>
         </div>
+        <p class="kitty-dica" aria-hidden="true">Toque na Kitty</p>
       </div>
     </div>
   </section>
 
-
   <!-- ================= NOSSO TEMPO ================= -->
-  <section class="secao tema-tempo" id="tempo" data-cores="#ffffff,#ffe1ec,#fff2c9,#e7d6ff">
-    <div class="tempo-fundo" aria-hidden="true"></div>
+  <section class="secao secao-escura" id="tempo">
     <div class="cabecalho revelar">
-      <p class="eyebrow">02 — Nosso tempo</p>
+      <p class="eyebrow"><b>02</b>Nosso tempo</p>
       <h2>Cada segundo <em>contando.</em></h2>
-      <p class="cabecalho-sub claro">Desde o dia em que tudo começou, o relógio não parou — e nem eu de pensar em você.</p>
+      <p class="cabecalho-sub">Desde o dia em que tudo começou, o relógio não parou — e nem eu de pensar em você.</p>
     </div>
-    <div class="relogio revelar" id="relogio">
+    <div class="relogio revelar" id="relogio" role="timer" aria-label="Tempo juntos">
       <div class="bloco"><strong data-u="dias">0</strong><small>dias</small></div>
       <div class="bloco"><strong data-u="horas">00</strong><small>horas</small></div>
       <div class="bloco"><strong data-u="min">00</strong><small>minutos</small></div>
       <div class="bloco"><strong data-u="seg">00</strong><small>segundos</small></div>
     </div>
     <div class="tempo-extras revelar">
-      <button class="coracao-batida" id="coracaoBatida" aria-label="Fazer o coração bater">
-        <svg viewBox="0 0 32 29"><path d="M16 28.5S1 19.6 1 9.3C1 4.6 4.7 1 9.2 1c2.8 0 5.3 1.5 6.8 3.7C17.5 2.5 20 1 22.8 1 27.3 1 31 4.6 31 9.3 31 19.6 16 28.5 16 28.5z"/></svg>
+      <button type="button" class="coracao-batida" id="coracaoBatida" aria-label="Fazer o coração bater">
+        <svg viewBox="0 0 32 29" aria-hidden="true"><path d="M16 28.5S1 19.6 1 9.3C1 4.6 4.7 1 9.2 1c2.8 0 5.3 1.5 6.8 3.7C17.5 2.5 20 1 22.8 1 27.3 1 31 4.6 31 9.3 31 19.6 16 28.5 16 28.5z"/></svg>
       </button>
       <div class="estat">
         <div><strong id="batidas">0</strong><small>batidas por você · toque no coração</small></div>
@@ -161,79 +181,78 @@
   </section>
 
   <!-- ================= CARTA ================= -->
-  <section class="secao tema-carta" id="carta" data-cores="#ff7aa2,#ffcf8a,#ffb3c7,#e86a92">
-    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <section class="secao secao-blush" id="carta">
     <div class="cabecalho revelar">
-      <p class="eyebrow escuro">03 — Uma carta</p>
+      <p class="eyebrow"><b>03</b>Uma carta</p>
       <h2>Escrevi <em>pra você.</em></h2>
     </div>
-    <div class="carta-area revelar">
-      <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Abrir a carta">
-        <div class="env-fundo"></div>
-        <div class="env-papel"></div>
-        <div class="env-frente"></div>
-        <div class="env-aba"></div>
-        <div class="selo"><span>M</span></div>
+    <div class="carta-area revelar" id="cartaArea">
+      <div class="envelope-cena" id="envelopeCena">
+        <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Abrir a carta">
+          <div class="env-costas"></div>
+          <div class="env-papel"><span>Para Mariana</span></div>
+          <div class="env-frente"></div>
+          <div class="env-aba"><i class="aba-fora"></i><i class="aba-dentro"></i></div>
+          <div class="selo"><span>M</span></div>
+        </div>
+        <p class="instrucao" id="instrucao">Toque no selo para abrir</p>
       </div>
-      <p class="instrucao" id="instrucao">Toque no selo para abrir</p>
-      <article class="carta" id="carta-texto" aria-live="polite"></article>
+      <article class="carta" id="cartaTexto" aria-live="polite" hidden></article>
+      <button type="button" class="btn-texto" id="btnGuardarCarta" hidden>Guardar a carta no envelope</button>
     </div>
   </section>
 
   <!-- ================= MOTIVOS ================= -->
-  <section class="secao tema-motivos" id="motivos" data-cores="#b388ff,#ff8fb3,#7fd8ff,#ffb86b">
-    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <section class="secao secao-marfim" id="motivos">
     <div class="cabecalho revelar">
-      <p class="eyebrow escuro">04 — Motivos</p>
+      <p class="eyebrow"><b>04</b>Motivos</p>
       <h2>Por que eu <em>te amo.</em></h2>
       <p class="cabecalho-sub">Seis, de uma lista que não tem fim. Toque em cada cartão.</p>
     </div>
     <div class="grade revelar" id="grade"></div>
   </section>
 
-
   <!-- ================= CÉU / CONSTELAÇÃO ================= -->
-  <section class="secao tema-ceu" id="ceu" data-cores="#ffffff,#c9d8ff,#ffd6f0,#fff1b8">
-    <canvas id="ceuCanvas" aria-label="Céu estrelado interativo"></canvas>
+  <section class="secao secao-ceu" id="ceu">
+    <canvas id="ceuCanvas" aria-label="Céu estrelado interativo: toque nas estrelas que piscam"></canvas>
     <div class="ceu-conteudo">
       <div class="cabecalho revelar">
-        <p class="eyebrow">05 — Constelação</p>
+        <p class="eyebrow"><b>05</b>Constelação</p>
         <h2>Escrito nas <em>estrelas.</em></h2>
-        <p class="cabecalho-sub claro">Algumas estrelas brilham mais forte. Encontre todas e veja o que elas desenham.</p>
+        <p class="cabecalho-sub">Algumas estrelas brilham mais forte. Encontre todas e veja o que elas desenham.</p>
       </div>
       <div class="ceu-hud revelar">
         <span><b id="achadas">0</b> / <b id="totalEstrelas">12</b> estrelas</span>
         <div class="ceu-barra"><i id="ceuBarra"></i></div>
       </div>
-      <div class="desejo" id="desejo" aria-live="polite"><span>✦</span><p id="desejoTexto">Toque nas estrelas que piscam.</p></div>
     </div>
+    <div class="desejo" id="desejo" aria-live="polite"><span aria-hidden="true">✦</span><p id="desejoTexto">Toque nas estrelas que piscam.</p></div>
   </section>
 
   <!-- ================= VALES ================= -->
-  <section class="secao tema-vales" id="vales" data-cores="#ff9a8b,#ffcf71,#ff6fa5,#9be7d8">
-    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <section class="secao secao-blush" id="vales">
     <div class="cabecalho revelar">
-      <p class="eyebrow escuro">06 — Raspadinhas</p>
+      <p class="eyebrow"><b>06</b>Raspadinhas</p>
       <h2>Vales <em>premiados.</em></h2>
       <p class="cabecalho-sub">Todas premiadas, claro. Raspe com o dedo (ou o mouse) para descobrir.</p>
     </div>
+    <p class="vales-status revelar" id="valesStatus" aria-live="polite"><b id="valesAbertos">0</b> de <b id="valesTotal">6</b> revelados</p>
     <div class="vales revelar" id="listaVales"></div>
   </section>
 
   <!-- ================= FINAL ================= -->
-  <section class="secao secao-noite tema-final" id="final" data-cores="#ff6fa5,#c9a7ff,#ffd27a,#ff9ec4">
-    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-    <p class="eyebrow">07 — Uma pergunta</p>
-    <h2 class="pergunta">Você aceita ser minha <em>co-piloto</em> em todas as estradas da vida?</h2>
-    <div class="botoes-final">
-      <button class="btn-principal" id="btnSim">Sim, aceito</button>
-      <button class="btn-fantasma" id="btnNao">Não</button>
+  <section class="secao secao-escura secao-final" id="final">
+    <p class="eyebrow revelar"><b>07</b>Uma pergunta</p>
+    <h2 class="pergunta revelar">Você aceita ser minha <em>co-piloto</em> em todas as estradas da vida?</h2>
+    <div class="botoes-final revelar" id="botoesFinal">
+      <button type="button" class="btn-principal" id="btnSim">Sim, aceito</button>
+      <button type="button" class="btn-fantasma" id="btnNao">Não</button>
     </div>
-    <p class="resposta" id="resposta">Eu sabia. Te amo, Mariana.</p>
+    <p class="resposta" id="resposta" aria-live="polite">Eu sabia. Te amo, Mariana.</p>
   </section>
 </main>
 
-<footer>
+<footer class="rodape">
   <span class="marca">M<span>♥</span>L</span>
   <p>Feito à mão, só pra Mariana · 2026</p>
   <details class="creditos">
@@ -256,7 +275,7 @@
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
 } }
 </script>
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
 <script type="module" src="showroom.js"></script>
 </body>
 </html>

@@ -1,499 +1,363 @@
 /* =========================================================
-   TEXTOS — edite aqui à vontade
+   SEÇÕES DO SITE — cada função cuida de uma parte da página
+   (os textos ficam em conteudo.js; sons e brilhos em efeitos.js)
    ========================================================= */
-const CARTA = {
-  saudacao: 'Mariana, meu amor,',
-  paragrafos: [
-    'Se a vida fosse uma estrada, eu queria percorrer cada quilômetro dela do seu lado — com a janela aberta, a nossa música tocando e a sua mão segurando a minha.',
-    'Você é o meu lugar favorito, o meu sorriso sem motivo e a parte mais bonita de todos os meus dias. Com você, até trânsito parado vira passeio, e qualquer tarde comum ganha um tom de rosa, igualzinho ao laço da Hello Kitty.',
-    'Obrigado por ser tão carinhosa, tão linda e tão você. Prometo ser seu co-piloto, seu porto seguro e o seu fã número um, pra sempre.',
-    'Te amo mais do que ontem e menos do que amanhã.',
-  ],
-  assinatura: 'Lucas',
+import {
+  CARTA, RECADOS_KITTY, RECADO_FINAL_KITTY, MOTIVOS, DATA_INICIO,
+  DESEJOS_ESTRELAS, MENSAGEM_CONSTELACAO, VALES,
+} from './conteudo.js';
+import { reduzido, explodir, chuva, onda, reanimar, som, somSino, somNota, somBatida } from './efeitos.js';
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const fmt = n => n.toLocaleString('pt-BR');
+const toqueFino = matchMedia('(pointer: fine)').matches;
+const ativar = (el, fn) => {
+  el.addEventListener('click', fn);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(e); } });
 };
-
-const RECADOS_KITTY = [
-  'Mariana, você é a pessoa mais fofa do universo.',
-  'Sabia que tem alguém que pensa em você o dia inteiro?',
-  'Seu sorriso brilha mais que farol de BMW à noite.',
-  'Hoje é um ótimo dia pra ganhar um beijinho.',
-  'Você e ele: a combinação mais bonita que eu já vi.',
-  'Lembrete oficial da Kitty: você é linda.',
-];
-
-const MOTIVOS = [
-  { tit: 'Seu sorriso', t: 'Ele liga o meu dia mais rápido que a partida de uma BMW.', icone: '😊', g: 'linear-gradient(145deg, #ff9a9e, #fecfef)' },
-  { tit: 'Seu jeitinho', t: 'Essa fofura de Hello Kitty que você tem sem nem tentar.', icone: '🎀', g: 'linear-gradient(145deg, #f78ca0, #f9748f 40%, #fe9a8b)' },
-  { tit: 'Única', t: 'Você é tipo uma BMW: linda, potente e sem igual no mundo.', bmw: true, icone: '🏎️', g: 'linear-gradient(145deg, #4facfe, #6a5cf0)' },
-  { tit: 'Seu abraço', t: 'O meu lugar favorito para estacionar.', icone: '🤗', g: 'linear-gradient(145deg, #c471f5, #fa71cd)' },
-  { tit: 'Nossas risadas', t: 'Aquelas sem motivo nenhum, que viram as melhores lembranças.', icone: '😂', g: 'linear-gradient(145deg, #f6a96b, #ff7eb3)' },
-  { tit: 'Todo dia', t: 'Porque é em você que eu penso antes de dormir — e ao acordar.', icone: '🌙', g: 'linear-gradient(145deg, #a18cd1, #fbc2eb)' },
-];
-
-/* Data em que vocês começaram (ano-mês-diaThora:minuto) — troque pela de vocês */
-const DATA_INICIO = '2025-08-12T00:00:00';
-
-/* Uma frase para cada estrela da constelação (a quantidade define o desenho) */
-const DESEJOS_ESTRELAS = [
-  'Que a gente viaje o mundo inteiro, de janela aberta.',
-  'Que nunca falte motivo pra você sorrir.',
-  'Que todo domingo tenha preguiça e abraço.',
-  'Que a gente ria até a barriga doer, sempre.',
-  'Que eu te faça sentir amada todos os dias.',
-  'Que a nossa playlist nunca acabe.',
-  'Que cada aniversário seu seja mais bonito que o anterior.',
-  'Que a gente envelheça junto, de mãos dadas.',
-  'Que cada viagem vire uma história pra contar.',
-  'Que você nunca duvide do quanto é especial.',
-  'Que a gente dance na cozinha, mesmo sem música.',
-  'Que todos os seus sonhos tenham a minha torcida.',
-];
-const MENSAGEM_CONSTELACAO = 'Você completou o céu: ele desenha um coração. O meu, que é todinho seu.';
-
-/* Raspadinhas */
-const VALES = [
-  { emoji: '🍝', tit: 'Um jantar romântico', obs: 'você escolhe o lugar, eu pago a conta', g: 'linear-gradient(135deg, #ff6a88, #ff99ac)' },
-  { emoji: '🚗', tit: 'Um passeio sem destino', obs: 'janela aberta e sua playlist no máximo', g: 'linear-gradient(135deg, #4facfe, #8e7cf3)' },
-  { emoji: '🎀', tit: 'Um dia Hello Kitty', obs: 'filme, doce e tudo do jeitinho que você quiser', g: 'linear-gradient(135deg, #f093fb, #f5576c)' },
-  { emoji: '💆‍♀️', tit: 'Uma massagem', obs: 'sem hora pra acabar, válido pra sempre', g: 'linear-gradient(135deg, #43e2b0, #38b6d8)' },
-  { emoji: '🍫', tit: 'Chocolate ilimitado', obs: 'resgate a qualquer momento de TPM ou não', g: 'linear-gradient(135deg, #f6a96b, #e8638c)' },
-  { emoji: '💋', tit: '1.000 beijos', obs: 'parcelados em quantas vezes você quiser', g: 'linear-gradient(135deg, #c471f5, #fa71cd)' },
-];
-
-/* =========================================================
-   EFEITOS DOM
-   ========================================================= */
-function explodir(x, y, qtd = 10) {
-  for (let i = 0; i < qtd; i++) {
-    const p = document.createElement('div');
-    p.className = 'particula';
-    p.textContent = Math.random() < 0.7 ? '♥' : '✦';
-    const ang = Math.random() * Math.PI * 2;
-    const dist = 50 + Math.random() * 90;
-    p.style.left = x + 'px';
-    p.style.top = y + 'px';
-    p.style.fontSize = (10 + Math.random() * 14) + 'px';
-    p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
-    p.style.setProperty('--dy', Math.sin(ang) * dist - 30 + 'px');
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 1700);
+function embaralhar(lista) {
+  for (let i = lista.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [lista[i], lista[j]] = [lista[j], lista[i]];
   }
+  return lista;
 }
-function chuva(qtd = 70) {
-  for (let i = 0; i < qtd; i++) {
-    setTimeout(() => {
-      const c = document.createElement('div');
-      c.className = 'chuva';
-      c.textContent = Math.random() < 0.75 ? '♥' : '✦';
-      c.style.left = Math.random() * 100 + 'vw';
-      c.style.fontSize = (12 + Math.random() * 22) + 'px';
-      c.style.opacity = 0.5 + Math.random() * 0.5;
-      c.style.animationDuration = (3 + Math.random() * 3) + 's';
-      document.body.appendChild(c);
-      setTimeout(() => c.remove(), 6200);
-    }, i * 70);
-  }
+// centro de um elemento, para efeitos disparados pelo teclado
+function pontoDe(e, el) {
+  if (e && e.clientX) return [e.clientX, e.clientY];
+  const r = el.getBoundingClientRect();
+  return [r.left + r.width / 2, r.top + r.height / 2];
 }
 
 /* =========================================================
-   SONS (Web Audio — nenhum arquivo externo)
+   ABERTURA — some quando o primeiro carro chega
    ========================================================= */
-let audioCtx = null;
-function audio() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  return audioCtx;
-}
-function motor(curva, duracao, volume = 0.16) {
-  const a = audio(), t = a.currentTime;
-  const o1 = a.createOscillator(), o2 = a.createOscillator();
-  const f = a.createBiquadFilter(), g = a.createGain();
-  o1.type = 'sawtooth'; o2.type = 'square';
-  curva.forEach(([tempo, hz], i) => {
-    const m = i === 0 ? 'setValueAtTime' : 'exponentialRampToValueAtTime';
-    o1.frequency[m](hz, t + tempo);
-    o2.frequency[m](hz / 2, t + tempo);
-  });
-  f.type = 'lowpass'; f.frequency.value = 520; f.Q.value = 4;
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(volume, t + 0.12);
-  g.gain.setValueAtTime(volume, t + duracao - 0.6);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + duracao);
-  o1.connect(f); o2.connect(f); f.connect(g); g.connect(a.destination);
-  o1.start(t); o2.start(t); o1.stop(t + duracao + 0.05); o2.stop(t + duracao + 0.05);
-}
-const somPartida = () => motor([[0, 30], [0.35, 38], [0.6, 140], [1.0, 70], [2.2, 52]], 2.4, 0.14);
-const somAcelerar = () => motor([[0, 55], [0.8, 200], [1.0, 130], [1.8, 260], [2.6, 58]], 2.8, 0.17);
-function somBuzina() {
-  const a = audio(), t = a.currentTime;
-  [[0, 0.16], [0.22, 0.5]].forEach(([ini, fim]) => {
-    [392, 494].forEach(hz => {
-      const o = a.createOscillator(), g = a.createGain(), f = a.createBiquadFilter();
-      o.type = 'square'; o.frequency.value = hz;
-      f.type = 'lowpass'; f.frequency.value = 2200;
-      g.gain.setValueAtTime(0.0001, t + ini);
-      g.gain.exponentialRampToValueAtTime(0.06, t + ini + 0.02);
-      g.gain.setValueAtTime(0.06, t + fim - 0.03);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + fim);
-      o.connect(f); f.connect(g); g.connect(a.destination);
-      o.start(t + ini); o.stop(t + fim + 0.02);
-    });
-  });
-}
-function somSino() {
-  const a = audio(), t = a.currentTime;
-  [1046, 1318, 1568].forEach((hz, i) => {
-    const o = a.createOscillator(), g = a.createGain();
-    o.type = 'sine'; o.frequency.value = hz;
-    const ini = t + i * 0.09;
-    g.gain.setValueAtTime(0.0001, ini);
-    g.gain.exponentialRampToValueAtTime(0.08, ini + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, ini + 0.6);
-    o.connect(g); g.connect(a.destination);
-    o.start(ini); o.stop(ini + 0.65);
-  });
+function intro() {
+  const el = $('intro');
+  const barra = $('introBarra');
+  let feito = false;
+  function fechar() {
+    if (feito) return;
+    feito = true;
+    el.classList.add('some');
+    document.body.classList.add('iniciado');
+    setTimeout(() => el.remove(), 1400);
+  }
+  document.addEventListener('showroom:progresso', e => { barra.style.transform = `scaleX(${e.detail})`; });
+  document.addEventListener('showroom:pronto', fechar);
+  setTimeout(fechar, reduzido ? 600 : 5000); // nunca segura a página por muito tempo
 }
 
 /* =========================================================
-   HELLO KITTY
+   TOPO FIXO — progresso, seção atual, menu do celular e som
    ========================================================= */
-(function kitty() {
-  const card = document.getElementById('kittyCard');
-  const recado = document.getElementById('recado');
-  const texto = document.getElementById('recadoTexto');
-  const laco = document.getElementById('laco');
-  let i = 0;
-  card.addEventListener('pointermove', e => {
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-    card.style.transform = `rotateY(${(x - 0.5) * 18}deg) rotateX(${(0.5 - y) * 18}deg)`;
-    card.style.setProperty('--bx', x * 100 + '%');
-    card.style.setProperty('--by', y * 100 + '%');
-  });
-  card.addEventListener('pointerleave', () => { card.style.transform = ''; });
-  function novoRecado(e) {
-    texto.style.opacity = 0;
-    recado.classList.add('troca');
-    setTimeout(() => {
-      texto.textContent = RECADOS_KITTY[i++ % RECADOS_KITTY.length];
-      texto.style.opacity = 1;
-      recado.classList.remove('troca');
-    }, 300);
-    laco.classList.remove('balanca');
-    void laco.getBoundingClientRect();
-    laco.classList.add('balanca');
-    somSino();
-    if (e && e.clientX) explodir(e.clientX, e.clientY, 8);
-  }
-  card.addEventListener('click', novoRecado);
-  card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); novoRecado(); } });
-})();
+function topo() {
+  const cab = $('topo');
+  const barra = $('progresso');
+  const menu = $('menu');
+  const btnMenu = $('btnMenu');
+  const btnSom = $('btnSom');
+  const hero = $('hero');
+  const links = [...menu.querySelectorAll('a')];
 
-/* =========================================================
-   CARTA
-   ========================================================= */
-(function carta() {
-  const env = document.getElementById('envelope');
-  const art = document.getElementById('carta-texto');
-  const instrucao = document.getElementById('instrucao');
-  let aberta = false;
-  function abrir() {
-    if (aberta) return;
-    aberta = true;
-    env.classList.add('aberto');
-    instrucao.style.opacity = 0;
-    somSino();
-    const linhas = [`<p class="saudacao">${CARTA.saudacao}</p>`]
-      .concat(CARTA.paragrafos.map(p => `<p>${p}</p>`))
-      .concat(`<p class="assinatura">${CARTA.assinatura}</p>`);
-    setTimeout(() => {
-      art.innerHTML = linhas.join('');
-      art.classList.add('mostrar');
-      art.querySelectorAll('p').forEach((p, n) => setTimeout(() => p.classList.add('vis'), 400 + n * 650));
-      setTimeout(() => art.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-    }, 1300);
-  }
-  env.addEventListener('click', abrir);
-  env.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
-})();
-
-/* =========================================================
-   MOTIVOS
-   ========================================================= */
-(function motivos() {
-  const grade = document.getElementById('grade');
-  MOTIVOS.forEach((m, i) => {
-    const el = document.createElement('div');
-    el.className = 'flip';
-    el.tabIndex = 0;
-    el.setAttribute('role', 'button');
-    el.innerHTML = `
-      <div class="flip-inner">
-        <div class="face frente" style="--g:${m.g}">
-          <span class="icone">${m.icone}</span>
-          <span class="num">${String(i + 1).padStart(2, '0')}</span>
-          <div><div class="tit">${m.tit}</div><div class="toque">Toque para ler</div></div>
-        </div>
-        <div class="face verso${m.bmw ? ' bmw' : ''}">
-          ${m.bmw ? '<div class="m-faixas"><i></i><i></i><i></i></div>' : ''}
-          <p>${m.t}</p>
-        </div>
-      </div>`;
-    const virar = () => el.classList.toggle('virado');
-    el.addEventListener('click', virar);
-    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); virar(); } });
-    grade.appendChild(el);
-  });
-})();
-
-/* =========================================================
-   PERGUNTA FINAL
-   ========================================================= */
-(function final() {
-  const nao = document.getElementById('btnNao');
-  const frases = ['Não', 'Tem certeza?', 'Pensa bem…', 'Botão errado', 'Impossível', 'Nem tenta'];
-  let n = 0;
-  function fugir() {
-    nao.classList.add('fugindo');
-    nao.style.left = 10 + Math.random() * (window.innerWidth - nao.offsetWidth - 20) + 'px';
-    nao.style.top = 10 + Math.random() * (window.innerHeight - nao.offsetHeight - 20) + 'px';
-    nao.textContent = frases[++n % frases.length];
-  }
-  nao.addEventListener('pointerenter', fugir);
-  nao.addEventListener('click', e => { e.preventDefault(); fugir(); });
-  document.getElementById('btnSim').addEventListener('click', () => {
-    document.getElementById('resposta').classList.add('mostrar');
-    nao.style.display = 'none';
-    chuva(80);
-    somSino();
-  });
-})();
-
-/* =========================================================
-   FUNDO: partículas flutuantes + rastro do cursor
-   ========================================================= */
-(function fundo() {
-  const cv = document.getElementById('fundo');
-  const ctx = cv.getContext('2d');
-  const hero = document.getElementById('hero');
-  const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let W, H, dpr, cores = ['#ff8fb3', '#ffc4a8', '#c9a7ff', '#ff5c8a'];
-  const flutuantes = [], rastro = [];
-  const mouse = { x: -999, y: -999 };
-
-  function tamanho() {
-    dpr = Math.min(devicePixelRatio, 2);
-    W = innerWidth; H = innerHeight;
-    cv.width = W * dpr; cv.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  tamanho();
-  addEventListener('resize', tamanho);
-
-  const qtd = reduzido ? 0 : Math.round(Math.min(24, W / 55));
-  for (let i = 0; i < qtd; i++) flutuantes.push(novo(true));
-  function novo(inicio) {
-    return {
-      x: Math.random() * W, y: inicio ? Math.random() * H : H + 30,
-      r: 4 + Math.random() * 8, vy: 0.15 + Math.random() * 0.45,
-      fase: Math.random() * 6.28, giro: (Math.random() - 0.5) * 0.02, a: Math.random() * 6.28,
-      cor: Math.floor(Math.random() * 4), tipo: Math.random() < 0.55 ? 'c' : (Math.random() < 0.5 ? 'e' : 'b'),
-      op: 0.18 + Math.random() * 0.3, vx: 0,
-    };
-  }
-
-  function coracao(x, y, r, a) {
-    ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(r / 16, r / 16);
-    ctx.beginPath();
-    ctx.moveTo(0, 6);
-    ctx.bezierCurveTo(-16, -6, -8, -18, 0, -9);
-    ctx.bezierCurveTo(8, -18, 16, -6, 0, 6);
-    ctx.fill(); ctx.restore();
-  }
-  function estrela(x, y, r, a) {
-    ctx.save(); ctx.translate(x, y); ctx.rotate(a);
-    ctx.beginPath();
-    for (let i = 0; i < 8; i++) {
-      const rr = i % 2 ? r * 0.28 : r;
-      const ang = i * Math.PI / 4;
-      ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr);
-    }
-    ctx.closePath(); ctx.fill(); ctx.restore();
-  }
-
-  // paleta muda conforme a seção visível
-  const obs = new IntersectionObserver(es => es.forEach(e => {
-    if (e.isIntersecting && e.target.dataset.cores) cores = e.target.dataset.cores.split(',');
-  }), { threshold: 0.4 });
-  document.querySelectorAll('section[data-cores]').forEach(s => obs.observe(s));
-
-  let ultimo = 0;
-  if (matchMedia('(pointer: fine)').matches && !reduzido) {
-    addEventListener('pointermove', e => {
-      mouse.x = e.clientX; mouse.y = e.clientY;
-      const agora = performance.now();
-      if (agora - ultimo < 28 || !cv.classList.contains('ativo')) return;
-      ultimo = agora;
-      rastro.push({
-        x: e.clientX, y: e.clientY, vx: (Math.random() - 0.5) * 1.2, vy: -0.4 - Math.random() * 0.8,
-        r: 3 + Math.random() * 5, vida: 1, cor: cores[Math.floor(Math.random() * cores.length)],
-        a: Math.random() * 6.28, tipo: Math.random() < 0.5 ? 'c' : 'e',
-      });
-    });
-  }
-
-  function loop() {
-    requestAnimationFrame(loop);
-    const ativo = hero.getBoundingClientRect().bottom < H * 0.35;
-    cv.classList.toggle('ativo', ativo);
-    if (!ativo && !rastro.length) return;
-    ctx.clearRect(0, 0, W, H);
-    for (const p of flutuantes) {
-      p.fase += 0.012; p.a += p.giro;
-      // repulsão suave do cursor
-      const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
-      if (d2 < 14000) { p.vx += dx / Math.sqrt(d2 + 1) * 0.35; }
-      p.vx *= 0.94;
-      p.x += Math.sin(p.fase) * 0.35 + p.vx;
-      p.y -= p.vy;
-      if (p.y < -30) Object.assign(p, novo(false));
-      ctx.globalAlpha = p.op;
-      ctx.fillStyle = cores[p.cor % cores.length];
-      if (p.tipo === 'c') coracao(p.x, p.y, p.r, Math.sin(p.fase) * 0.3);
-      else if (p.tipo === 'e') estrela(p.x, p.y, p.r * 0.8, p.a);
-      else { ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.45, 0, 6.28); ctx.fill(); }
-    }
-    for (let i = rastro.length - 1; i >= 0; i--) {
-      const p = rastro[i];
-      p.x += p.vx; p.y += p.vy; p.vida -= 0.022; p.a += 0.05;
-      if (p.vida <= 0) { rastro.splice(i, 1); continue; }
-      ctx.globalAlpha = p.vida * 0.9;
-      ctx.fillStyle = p.cor;
-      ctx.shadowColor = p.cor; ctx.shadowBlur = 8;
-      if (p.tipo === 'c') coracao(p.x, p.y, p.r * p.vida + 2, 0); else estrela(p.x, p.y, p.r * p.vida + 2, p.a);
-      ctx.shadowBlur = 0;
-    }
-    ctx.globalAlpha = 1;
-  }
-  loop();
-})();
-
-/* =========================================================
-   PROGRESSO DE ROLAGEM + PONTOS DE NAVEGAÇÃO
-   ========================================================= */
-(function navegacao() {
-  const barra = document.getElementById('progresso');
-  const pontos = document.getElementById('pontos');
-  const links = [...pontos.querySelectorAll('a')];
+  let agendado = false;
   function rolar() {
+    agendado = false;
     const max = document.documentElement.scrollHeight - innerHeight;
     barra.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
-    pontos.classList.toggle('ativo', scrollY > innerHeight * 0.6);
+    cab.classList.toggle('solido', scrollY > hero.offsetHeight - 90);
   }
-  addEventListener('scroll', rolar, { passive: true });
+  addEventListener('scroll', () => { if (!agendado) { agendado = true; requestAnimationFrame(rolar); } }, { passive: true });
+  addEventListener('resize', rolar);
   rolar();
+
   const obs = new IntersectionObserver(es => es.forEach(e => {
     if (!e.isIntersecting) return;
-    links.forEach(a => a.classList.toggle('atual', a.getAttribute('href') === '#' + e.target.id));
-  }), { rootMargin: '-45% 0px -45% 0px' });
-  links.forEach(a => { const s = document.querySelector(a.getAttribute('href')); if (s) obs.observe(s); });
-})();
+    links.forEach(a => a.classList.toggle('atual', a.hash === '#' + e.target.id));
+  }), { rootMargin: '-45% 0px -50% 0px' });
+  obs.observe(hero);
+  links.forEach(a => { const s = document.querySelector(a.hash); if (s) obs.observe(s); });
+
+  function abrirMenu(abrir) {
+    cab.classList.toggle('menu-aberto', abrir);
+    btnMenu.setAttribute('aria-expanded', abrir);
+    btnMenu.setAttribute('aria-label', abrir ? 'Fechar o menu' : 'Abrir o menu');
+    document.documentElement.classList.toggle('travado', abrir);
+  }
+  btnMenu.addEventListener('click', () => abrirMenu(!cab.classList.contains('menu-aberto')));
+  links.forEach(a => a.addEventListener('click', () => abrirMenu(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape') abrirMenu(false); });
+  matchMedia('(min-width: 961px)').addEventListener('change', () => abrirMenu(false));
+
+  function pintarSom() {
+    btnSom.setAttribute('aria-pressed', som.ligado);
+    btnSom.setAttribute('aria-label', som.ligado ? 'Desligar o som' : 'Ligar o som');
+    btnSom.classList.toggle('mudo', !som.ligado);
+  }
+  btnSom.addEventListener('click', () => {
+    som.alternar();
+    pintarSom();
+    somNota(6, 'sine', 0.06);
+  });
+  pintarSom();
+}
 
 /* =========================================================
-   KITTY: lacinhos flutuando
+   HELLO KITTY — recados sem repetir + uma reação para cada
    ========================================================= */
-(function lacinhos() {
-  const palco = document.querySelector('.kitty-palco');
-  [['🎀', '4%', '8%', 0], ['💗', '88%', '14%', -1.5], ['✨', '6%', '78%', -3], ['🎀', '86%', '80%', -2.2], ['💕', '48%', '-4%', -4]]
-    .forEach(([e, x, y, d]) => {
-      const s = document.createElement('span');
-      s.className = 'mini-laco'; s.textContent = e;
-      s.style.left = x; s.style.top = y; s.style.animationDelay = d + 's';
-      palco.appendChild(s);
+function kitty() {
+  const card = $('kittyCard');
+  const recado = $('recado');
+  const texto = $('recadoTexto');
+  const num = $('recadoNum');
+  const pontos = $('recadoPontos');
+  const total = RECADOS_KITTY.length;
+  let ordem = embaralhar([...RECADOS_KITTY.keys()]);
+  let lidos = 0;
+  let nota = 0;
+
+  for (let i = 0; i < total; i++) pontos.appendChild(document.createElement('i'));
+
+  if (toqueFino && !reduzido) {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      card.style.setProperty('--rx', (0.5 - y) * 14 + 'deg');
+      card.style.setProperty('--ry', (x - 0.5) * 14 + 'deg');
+      card.style.setProperty('--bx', x * 100 + '%');
+      card.style.setProperty('--by', y * 100 + '%');
     });
-})();
+    card.addEventListener('pointerleave', () => {
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
+    });
+  }
+
+  function proximo() {
+    if (lidos >= total) {
+      // todos lidos: um recado bônus e a rodada recomeça
+      lidos = 0;
+      ordem = embaralhar([...RECADOS_KITTY.keys()]);
+      [...pontos.children].forEach(p => p.classList.remove('lido'));
+      return { item: { t: RECADO_FINAL_KITTY, r: 'bochecha' }, rotulo: 'Recado bônus' };
+    }
+    const item = RECADOS_KITTY[ordem[lidos]];
+    pontos.children[lidos].classList.add('lido');
+    lidos++;
+    return { item, rotulo: `Recado ${pad(lidos)} de ${pad(total)}` };
+  }
+
+  function tocar(e) {
+    const { item, rotulo } = proximo();
+    const [x, y] = pontoDe(e, card);
+
+    card.dataset.reacao = item.r;
+    reanimar(card, 'tocada');
+    onda(card, x, y);
+    explodir(x, y, 5);
+    item.r === 'laco' ? somSino() : somNota(4 + (nota++ % 5), 'sine', 0.09);
+
+    recado.classList.add('troca');
+    setTimeout(() => {
+      texto.textContent = item.t;
+      num.textContent = rotulo;
+      recado.classList.remove('troca');
+      reanimar(recado, 'chegou');
+    }, reduzido ? 0 : 260);
+  }
+  ativar(card, tocar);
+}
 
 /* =========================================================
    NOSSO TEMPO
    ========================================================= */
-(function tempo() {
+function tempo() {
   const inicio = new Date(DATA_INICIO).getTime();
   const els = {};
-  document.querySelectorAll('#relogio [data-u]').forEach(el => els[el.dataset.u] = el);
-  const pens = document.getElementById('pensamentos');
-  const sol = document.getElementById('porDoSol');
-  const fmt = n => n.toLocaleString('pt-BR');
+  document.querySelectorAll('#relogio [data-u]').forEach(el => { els[el.dataset.u] = el; });
+  const pens = $('pensamentos');
+  const sol = $('porDoSol');
+
   function por(el, v) {
     if (el.textContent === v) return;
     el.textContent = v;
-    el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+    if (!reduzido) reanimar(el, 'tick');
   }
   function atualizar() {
-    const ms = Math.max(0, Date.now() - inicio);
-    const s = Math.floor(ms / 1000);
+    const s = Math.floor(Math.max(0, Date.now() - inicio) / 1000);
     por(els.dias, fmt(Math.floor(s / 86400)));
-    por(els.horas, String(Math.floor(s % 86400 / 3600)).padStart(2, '0'));
-    por(els.min, String(Math.floor(s % 3600 / 60)).padStart(2, '0'));
-    por(els.seg, String(s % 60).padStart(2, '0'));
+    por(els.horas, pad(Math.floor(s % 86400 / 3600)));
+    por(els.min, pad(Math.floor(s % 3600 / 60)));
+    por(els.seg, pad(s % 60));
     pens.textContent = fmt(Math.floor(s / 90)); // uma vez a cada minuto e meio, no mínimo
     sol.textContent = fmt(Math.floor(s / 86400));
   }
   atualizar();
   setInterval(atualizar, 1000);
 
-  const btn = document.getElementById('coracaoBatida');
-  const bat = document.getElementById('batidas');
+  const btn = $('coracaoBatida');
+  const bat = $('batidas');
   let n = 0;
   btn.addEventListener('click', e => {
     n++;
     bat.textContent = fmt(n);
-    btn.classList.remove('forte'); void btn.offsetWidth; btn.classList.add('forte');
-    const r = btn.getBoundingClientRect();
-    explodir(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2, 6 + Math.min(n, 14));
-    const a = audio(), t = a.currentTime;
-    [0, 0.14].forEach((d, i) => {
-      const o = a.createOscillator(), g = a.createGain();
-      o.type = 'sine'; o.frequency.setValueAtTime(i ? 70 : 85, t + d); o.frequency.exponentialRampToValueAtTime(40, t + d + 0.15);
-      g.gain.setValueAtTime(0.0001, t + d); g.gain.exponentialRampToValueAtTime(0.35, t + d + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.18);
-      o.connect(g); g.connect(a.destination); o.start(t + d); o.stop(t + d + 0.2);
-    });
-    if (n % 25 === 0) chuva(30);
+    reanimar(bat, 'tick');
+    reanimar(btn, 'forte');
+    const [x, y] = pontoDe(e, btn);
+    explodir(x, y, 4 + Math.min(n, 8));
+    somBatida();
+    if (n % 25 === 0) chuva(24);
   });
-})();
+}
 
 /* =========================================================
-   CÉU ESTRELADO / CONSTELAÇÃO DE CORAÇÃO
+   CARTA — selo, aba, papel subindo e a carta se abrindo
    ========================================================= */
-(function ceu() {
-  const sec = document.getElementById('ceu');
-  const cv = document.getElementById('ceuCanvas');
+function carta() {
+  const env = $('envelope');
+  const cena = $('envelopeCena');
+  const art = $('cartaTexto');
+  const btn = $('btnGuardarCarta');
+  let estado = 'fechada';
+
+  art.innerHTML = [
+    '<span class="carta-orn" aria-hidden="true">✦</span>',
+    `<p class="saudacao">${CARTA.saudacao}</p>`,
+    ...CARTA.paragrafos.map(p => `<p>${p}</p>`),
+    `<p class="assinatura">${CARTA.assinatura}</p>`,
+  ].join('');
+  const linhas = [...art.querySelectorAll('p')];
+
+  function abrir() {
+    if (estado !== 'fechada') return;
+    estado = 'abrindo';
+    env.classList.add('aberto');
+    somSino();
+    setTimeout(() => {
+      cena.classList.add('sai');
+      setTimeout(mostrarCarta, reduzido ? 0 : 450);
+    }, reduzido ? 0 : 2300);
+  }
+  function mostrarCarta() {
+    cena.hidden = true;
+    art.hidden = false;
+    btn.hidden = false;
+    linhas.forEach(p => p.classList.remove('vis'));
+    reanimar(art, 'mostrar');
+    linhas.forEach((p, i) => setTimeout(() => p.classList.add('vis'), reduzido ? 0 : 450 + i * 520));
+    art.scrollIntoView({ behavior: reduzido ? 'auto' : 'smooth', block: 'start' });
+    estado = 'aberta';
+  }
+  function guardar() {
+    if (estado !== 'aberta') return;
+    art.hidden = true;
+    btn.hidden = true;
+    // o envelope volta fechado na hora; só a cena aparece suavemente
+    env.classList.add('sem-transicao');
+    env.classList.remove('aberto');
+    cena.hidden = false;
+    void cena.offsetWidth;
+    env.classList.remove('sem-transicao');
+    cena.classList.remove('sai');
+    estado = 'fechada';
+    cena.scrollIntoView({ behavior: reduzido ? 'auto' : 'smooth', block: 'center' });
+    env.focus({ preventScroll: true });
+  }
+  ativar(env, abrir);
+  btn.addEventListener('click', guardar);
+}
+
+/* =========================================================
+   MOTIVOS — cartões que viram
+   ========================================================= */
+const ICONES = {
+  sorriso: '<circle cx="12" cy="12" r="9"/><path d="M8.2 14a4.6 4.6 0 0 0 7.6 0"/><path d="M9 9.6v.1M15 9.6v.1"/>',
+  laco: '<path d="M12 12 4.5 7.6v8.8L12 12l7.5-4.4v8.8L12 12z"/><circle cx="12" cy="12" r="1.7"/>',
+  carro: '<path d="M3 15.6v-2.3c0-.8.5-1.4 1.2-1.6l2.4-.7 2.2-2.9A2 2 0 0 1 10.4 7.4h3.9a2 2 0 0 1 1.5.7l2.6 3 1.5.4c.8.2 1.1.8 1.1 1.6v2.5"/><circle cx="7.2" cy="16" r="1.9"/><circle cx="16.8" cy="16" r="1.9"/><path d="M9.1 16h5.8"/>',
+  abraco: '<path d="M12 19.5s-7-4.3-7-9.6a3.9 3.9 0 0 1 7-2.4 3.9 3.9 0 0 1 7 2.4c0 5.3-7 9.6-7 9.6z"/>',
+  brilho: '<path d="M11 4c.6 4.2 2.4 6 6.6 6.6-4.2.6-6 2.4-6.6 6.6-.6-4.2-2.4-6-6.6-6.6C8.6 10 10.4 8.2 11 4z"/><path d="M18.5 3.5v3M17 5h3"/>',
+  lua: '<path d="M19.5 14.6A7.9 7.9 0 1 1 9.4 4.5a6.3 6.3 0 0 0 10.1 10.1z"/>',
+};
+
+function motivos() {
+  const grade = $('grade');
+  MOTIVOS.forEach((m, i) => {
+    const el = document.createElement('div');
+    el.className = 'flip';
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-pressed', 'false');
+    el.setAttribute('aria-label', `Motivo ${i + 1}: ${m.tit}. Toque para ler.`);
+    el.style.setProperty('--d', i * 0.08 + 's');
+    el.innerHTML = `
+      <div class="flip-inner">
+        <div class="face frente">
+          <div class="frente-topo">
+            <span class="num">${pad(i + 1)}</span>
+            <svg class="icone" viewBox="0 0 24 24" aria-hidden="true">${ICONES[m.icone] || ICONES.abraco}</svg>
+          </div>
+          <div>
+            <div class="tit">${m.tit}</div>
+            <div class="toque">Toque para ler <span aria-hidden="true">→</span></div>
+          </div>
+        </div>
+        <div class="face verso${m.bmw ? ' bmw' : ''}">
+          ${m.bmw ? '<div class="m-faixas" aria-hidden="true"><i></i><i></i><i></i></div>' : ''}
+          <p>${m.t}</p>
+          <small>${pad(i + 1)} · ${m.tit}</small>
+        </div>
+      </div>`;
+    ativar(el, () => {
+      const virado = el.classList.toggle('virado');
+      el.setAttribute('aria-pressed', virado);
+      if (virado) somNota(i + 2, 'sine', 0.05);
+    });
+    grade.appendChild(el);
+  });
+}
+
+/* =========================================================
+   CÉU ESTRELADO — constelação em forma de coração
+   ========================================================= */
+function ceu() {
+  const sec = $('ceu');
+  const cv = $('ceuCanvas');
   const ctx = cv.getContext('2d');
-  const txt = document.getElementById('desejoTexto');
-  const caixa = document.getElementById('desejo');
-  const elAchadas = document.getElementById('achadas');
-  const barra = document.getElementById('ceuBarra');
+  const txt = $('desejoTexto');
+  const caixa = $('desejo');
+  const elAchadas = $('achadas');
+  const barra = $('ceuBarra');
+  const hud = sec.querySelector('.ceu-hud');
   const N = DESEJOS_ESTRELAS.length;
-  document.getElementById('totalEstrelas').textContent = N;
-  let W, H, dpr, fundo = [], especiais = [], cadentes = [], achadas = 0, completo = 0, visivel = false;
+  const raioToque = toqueFino ? 28 : 38;
+  $('totalEstrelas').textContent = N;
+
+  let W = 0, H = 0, fundo = [], especiais = [], cadentes = [], achadas = 0, completo = 0, visivel = false;
   const mouse = { x: 0.5, y: 0.5, px: -999, py: -999 };
 
   function montar() {
-    dpr = Math.min(devicePixelRatio, 2);
-    W = cv.clientWidth; H = cv.clientHeight;
+    const dpr = Math.min(devicePixelRatio, 2);
+    const novoW = cv.clientWidth, novoH = cv.clientHeight;
+    // a barra do navegador no celular muda só um pouco a altura: não refaz o céu à toa
+    const refazerFundo = novoW !== W || Math.abs(novoH - H) > 120;
+    W = novoW; H = novoH;
     cv.width = W * dpr; cv.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    fundo = Array.from({ length: Math.round(W * H / 2600) }, () => ({
-      x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.3 + 0.2,
-      f: Math.random() * 6.28, v: 0.01 + Math.random() * 0.03, z: Math.random(),
-      cor: ['#ffffff', '#c9d8ff', '#ffd6f0', '#fff1b8'][Math.floor(Math.random() * 4)],
-    }));
-    // estrelas especiais desenhando um coração
+    if (refazerFundo || !fundo.length) {
+      const cores = ['#ffffff', '#f3e3c3', '#f6d4dd', '#e9e3f3'];
+      fundo = Array.from({ length: Math.round(W * H / (toqueFino ? 2600 : 3400)) }, () => ({
+        x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + 0.2,
+        f: Math.random() * 6.28, v: 0.01 + Math.random() * 0.03, z: Math.random(),
+        cor: cores[Math.floor(Math.random() * cores.length)],
+      }));
+    }
     // o coração ocupa o espaço livre entre o contador e a caixa de desejo
     const rc = cv.getBoundingClientRect();
-    const topo = document.querySelector('.ceu-hud').getBoundingClientRect().bottom - rc.top + 30;
-    const base = caixa.getBoundingClientRect().top - rc.top - 30;
-    const esc = Math.max(5, Math.min(W * 0.026, (base - topo) / 29));
-    const cx = W / 2, cy = (topo + base) / 2 - 3 * esc;
+    const topoLivre = hud.getBoundingClientRect().bottom - rc.top + 30;
+    const baseLivre = caixa.getBoundingClientRect().top - rc.top - 30;
+    const esc = Math.max(5, Math.min(W * 0.026, (baseLivre - topoLivre) / 29));
+    const cx = W / 2, cy = (topoLivre + baseLivre) / 2 - 3 * esc;
     const antigas = especiais;
     especiais = DESEJOS_ESTRELAS.map((d, i) => {
       const t = Math.PI * 2 * i / N;
@@ -504,8 +368,12 @@ function somSino() {
   }
   montar();
   addEventListener('resize', montar);
+  new IntersectionObserver(es => {
+    visivel = es[0].isIntersecting;
+    if (visivel) setTimeout(montar, 1200); // espera o conteúdo terminar de aparecer
+  }).observe(sec);
 
-  new IntersectionObserver(es => { visivel = es[0].isIntersecting; if (visivel) setTimeout(montar, 1200); }).observe(sec);
+  const perto = (x, y) => especiais.find(s => (s.x - x) ** 2 + (s.y - y) ** 2 < raioToque * raioToque);
 
   cv.addEventListener('pointermove', e => {
     const r = cv.getBoundingClientRect();
@@ -514,46 +382,35 @@ function somSino() {
     cv.style.cursor = perto(mouse.px, mouse.py) ? 'pointer' : 'crosshair';
   });
   cv.addEventListener('pointerleave', () => { mouse.px = mouse.py = -999; });
-  function perto(x, y) {
-    return especiais.find(s => (s.x - x) ** 2 + (s.y - y) ** 2 < 30 * 30);
-  }
   cv.addEventListener('click', e => {
     const r = cv.getBoundingClientRect();
     const x = e.clientX - r.left, y = e.clientY - r.top;
     const s = perto(x, y);
-    if (!s) { // clique no vazio: estrela cadente
+    if (!s) { // toque no vazio: estrela cadente
       cadentes.push({ x, y, vx: -6 - Math.random() * 4, vy: 3 + Math.random() * 2, vida: 1 });
       return;
     }
     s.brilho = 1;
     mostrar(s.d);
-    sino(s.f);
-    explodir(e.clientX, e.clientY, 8);
+    somNota(s.f);
+    explodir(e.clientX, e.clientY, 5);
     if (!s.achada) {
       s.achada = true;
       achadas++;
       elAchadas.textContent = achadas;
       barra.style.width = achadas / N * 100 + '%';
-      if (achadas === N) setTimeout(final, 900);
+      if (achadas === N) setTimeout(completar, 900);
     }
   });
   function mostrar(t) {
     txt.style.opacity = 0;
     caixa.classList.add('novo');
-    setTimeout(() => { txt.textContent = t; txt.style.opacity = 1; caixa.classList.remove('novo'); }, 280);
+    setTimeout(() => { txt.textContent = t; txt.style.opacity = 1; caixa.classList.remove('novo'); }, 260);
   }
-  function sino(i) {
-    const a = audio(), t = a.currentTime;
-    const notas = [523, 587, 659, 784, 880, 988, 1046, 1175, 1318, 1568];
-    const o = a.createOscillator(), g = a.createGain();
-    o.type = 'triangle'; o.frequency.value = notas[i % notas.length];
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
-    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 1.5);
-  }
-  function final() {
+  function completar() {
     caixa.classList.add('completo');
     mostrar(MENSAGEM_CONSTELACAO);
-    chuva(50);
+    chuva(30);
     somSino();
   }
 
@@ -573,108 +430,127 @@ function somSino() {
     const ox = (mouse.x - 0.5) * 24, oy = (mouse.y - 0.5) * 24;
     // céu de fundo com paralaxe
     for (const s of fundo) {
-      s.f += s.v;
-      ctx.globalAlpha = 0.35 + Math.sin(s.f) * 0.35 + 0.3 * s.z;
+      if (!reduzido) s.f += s.v;
+      ctx.globalAlpha = 0.3 + Math.sin(s.f) * 0.3 + 0.3 * s.z;
       ctx.fillStyle = s.cor;
       ctx.beginPath(); ctx.arc(s.x + ox * s.z, s.y + oy * s.z, s.r, 0, 6.28); ctx.fill();
     }
     // linhas da constelação
     if (completo < 1 && achadas === N) completo = Math.min(1, completo + 0.01);
-    ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+    ctx.lineWidth = 1.2; ctx.lineCap = 'round';
     for (let i = 0; i < N; i++) {
       const a = especiais[i], b = especiais[(i + 1) % N];
       if (!(a.achada && b.achada)) continue;
-      ctx.globalAlpha = 0.55 + completo * 0.4;
-      ctx.strokeStyle = completo > 0 ? `rgba(255, 190, 220, 1)` : 'rgba(201, 216, 255, 1)';
-      ctx.shadowColor = '#ff9ec4'; ctx.shadowBlur = 6 + completo * 14;
+      ctx.globalAlpha = 0.5 + completo * 0.45;
+      ctx.strokeStyle = completo > 0 ? '#f0c9d3' : '#e6cf9e';
+      ctx.shadowColor = '#e6cf9e'; ctx.shadowBlur = 4 + completo * 12;
       ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
     }
     ctx.shadowBlur = 0;
-    // brilho rosa no centro quando completa
+    // brilho rosado no centro quando completa
     if (completo > 0) {
       const g = ctx.createRadialGradient(W / 2, H * 0.5, 0, W / 2, H * 0.5, Math.min(W, H) * 0.4);
-      g.addColorStop(0, `rgba(255, 111, 165, ${0.28 * completo})`); g.addColorStop(1, 'rgba(255, 111, 165, 0)');
+      g.addColorStop(0, `rgba(212, 139, 160, ${0.22 * completo})`); g.addColorStop(1, 'rgba(212, 139, 160, 0)');
       ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     }
     // estrelas especiais
     for (const s of especiais) {
       s.brilho *= 0.95;
-      const pulso = 0.5 + Math.sin(t * 2.2 + s.f) * 0.5;
+      const pulso = reduzido ? 0.6 : 0.5 + Math.sin(t * 2.2 + s.f) * 0.5;
       const hover = (s.x - mouse.px) ** 2 + (s.y - mouse.py) ** 2 < 900 ? 1 : 0;
-      const r = (s.achada ? 9 : 6 + pulso * 4) + hover * 4 + s.brilho * 10;
+      const r = (s.achada ? 8 : 5 + pulso * 4) + hover * 4 + s.brilho * 10;
       const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r * 3.2);
-      g.addColorStop(0, s.achada ? 'rgba(255, 214, 240, .9)' : 'rgba(255, 241, 184, .8)');
-      g.addColorStop(1, 'rgba(255, 241, 184, 0)');
+      g.addColorStop(0, s.achada ? 'rgba(240, 201, 211, .85)' : 'rgba(230, 207, 158, .8)');
+      g.addColorStop(1, 'rgba(230, 207, 158, 0)');
       ctx.globalAlpha = 0.6 + pulso * 0.4;
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, r * 3.2, 0, 6.28); ctx.fill();
-      ctx.globalAlpha = 1; ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 1; ctx.fillStyle = '#fffaf0';
       estrela4(s.x, s.y, r);
     }
-    // estrelas cadentes (aleatórias + cliques)
-    if (Math.random() < 0.006) cadentes.push({ x: Math.random() * W * 0.6 + W * 0.4, y: Math.random() * H * 0.3, vx: -7, vy: 3, vida: 1 });
+    // estrelas cadentes (aleatórias + toques no vazio)
+    if (!reduzido && Math.random() < 0.004) cadentes.push({ x: Math.random() * W * 0.6 + W * 0.4, y: Math.random() * H * 0.3, vx: -7, vy: 3, vida: 1 });
     for (let i = cadentes.length - 1; i >= 0; i--) {
       const c = cadentes[i];
       c.x += c.vx; c.y += c.vy; c.vida -= 0.018;
       if (c.vida <= 0) { cadentes.splice(i, 1); continue; }
       const g = ctx.createLinearGradient(c.x, c.y, c.x - c.vx * 12, c.y - c.vy * 12);
-      g.addColorStop(0, `rgba(255,255,255,${c.vida})`); g.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.strokeStyle = g; ctx.lineWidth = 2; ctx.globalAlpha = 1;
+      g.addColorStop(0, `rgba(255, 246, 228, ${c.vida})`); g.addColorStop(1, 'rgba(255, 246, 228, 0)');
+      ctx.strokeStyle = g; ctx.lineWidth = 1.6; ctx.globalAlpha = 1;
       ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x - c.vx * 12, c.y - c.vy * 12); ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }
   quadro();
-})();
+}
 
 /* =========================================================
    VALES / RASPADINHAS
    ========================================================= */
-(function vales() {
-  const lista = document.getElementById('listaVales');
-  VALES.forEach(v => {
+function vales() {
+  const lista = $('listaVales');
+  const elAbertos = $('valesAbertos');
+  const status = $('valesStatus');
+  let abertos = 0;
+  $('valesTotal').textContent = VALES.length;
+
+  VALES.forEach((v, i) => {
     const el = document.createElement('div');
-    el.className = 'vale';
+    el.className = `vale tom-${v.tom}`;
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-label', `Raspadinha ${i + 1}: raspe, ou aperte Enter, para revelar`);
     el.innerHTML = `
-      <div class="vale-premio" style="--g:${v.g}">
-        <span class="emoji">${v.emoji}</span>
-        <small>Vale</small>
+      <div class="vale-premio">
+        <span class="emoji" aria-hidden="true">${v.emoji}</span>
+        <small>Vale nº ${pad(i + 1)}</small>
         <strong>${v.tit}</strong>
         <em>${v.obs}</em>
       </div>
-      <canvas aria-label="Raspadinha: raspe para revelar"></canvas>`;
+      <canvas aria-hidden="true"></canvas>`;
     lista.appendChild(el);
-    const cv = el.querySelector('canvas');
-    const ctx = cv.getContext('2d');
-    let pronto = false, raspando = false, ultimo = null, cont = 0;
 
+    const cv = el.querySelector('canvas');
+    const ctx = cv.getContext('2d', { willReadFrequently: true });
+    let pronto = false, raspando = false, ultimo = null, cont = 0, largura = 0;
+
+    // camada dourada de raspar
     function pintar() {
+      if (el.classList.contains('raspado')) return;
       const r = cv.getBoundingClientRect();
-      if (!r.width) return;
+      if (!r.width || r.width === largura) return;
+      largura = r.width;
       const dpr = Math.min(devicePixelRatio, 2);
       cv.width = r.width * dpr; cv.height = r.height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.globalCompositeOperation = 'source-over';
       const g = ctx.createLinearGradient(0, 0, r.width, r.height);
-      g.addColorStop(0, '#e9e4ef'); g.addColorStop(0.45, '#c9c2d4'); g.addColorStop(0.55, '#f4f1f8'); g.addColorStop(1, '#b8b0c6');
+      g.addColorStop(0, '#d9bf8c'); g.addColorStop(0.35, '#b8945c'); g.addColorStop(0.5, '#f1e0b8');
+      g.addColorStop(0.65, '#c4a066'); g.addColorStop(1, '#a8834d');
       ctx.fillStyle = g; ctx.fillRect(0, 0, r.width, r.height);
-      // padrão de corações prateados
-      ctx.fillStyle = 'rgba(255,255,255,.45)';
-      ctx.font = '16px serif';
-      for (let y = 18; y < r.height; y += 30) for (let x = (y / 30 % 2) * 18 + 10; x < r.width; x += 36) ctx.fillText('♥', x, y);
-      ctx.fillStyle = 'rgba(80, 60, 100, .75)';
+      // trama fina de brilho
+      ctx.fillStyle = 'rgba(255, 248, 230, .18)';
+      for (let y = 0; y < r.height; y += 6) for (let x = (y / 6 % 2) * 3; x < r.width; x += 6) ctx.fillRect(x, y, 1, 1);
+      ctx.strokeStyle = 'rgba(255, 248, 230, .55)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(10.5, 10.5, r.width - 21, r.height - 21);
+      ctx.fillStyle = 'rgba(70, 48, 20, .78)';
       ctx.textAlign = 'center';
-      ctx.font = '600 13px Inter, sans-serif';
-      ctx.fillText('RASPE AQUI', r.width / 2, r.height / 2 - 4);
+      ctx.font = '500 11px Inter, sans-serif';
+      ctx.letterSpacing = '3px';
+      ctx.fillText('RASPE AQUI', r.width / 2, r.height / 2 - 6);
+      ctx.letterSpacing = '0px';
       ctx.font = 'italic 500 22px "Cormorant Garamond", serif';
-      ctx.fillText('uma surpresa ♥', r.width / 2, r.height / 2 + 22);
+      ctx.fillText('uma surpresa ♥', r.width / 2, r.height / 2 + 20);
       ctx.globalCompositeOperation = 'destination-out';
       pronto = true;
     }
     requestAnimationFrame(pintar);
-    document.fonts && document.fonts.ready.then(() => { if (!el.classList.contains('raspado')) { ctx.globalCompositeOperation = 'source-over'; pintar(); } });
+    if (document.fonts) document.fonts.ready.then(() => { largura = 0; pintar(); });
+    addEventListener('resize', pintar);
 
-    function pos(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    const pos = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
     function raspar(p) {
-      ctx.lineWidth = 38; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.lineWidth = 40; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       ctx.beginPath();
       if (ultimo) ctx.moveTo(ultimo.x, ultimo.y); else ctx.moveTo(p.x - 0.1, p.y);
       ctx.lineTo(p.x, p.y); ctx.stroke();
@@ -684,28 +560,94 @@ function somSino() {
     function verificar() {
       const d = ctx.getImageData(0, 0, cv.width, cv.height).data;
       let vazio = 0, total = 0;
-      for (let i = 3; i < d.length; i += 64) { total++; if (d[i] === 0) vazio++; }
+      for (let k = 3; k < d.length; k += 64) { total++; if (d[k] === 0) vazio++; }
       if (vazio / total > 0.5) revelar();
     }
     function revelar() {
       if (el.classList.contains('raspado')) return;
       el.classList.add('raspado');
+      el.setAttribute('aria-label', `Vale ${i + 1}: ${v.tit} — ${v.obs}`);
       const r = el.getBoundingClientRect();
-      explodir(r.left + r.width / 2, r.top + r.height / 2, 16);
+      explodir(r.left + r.width / 2, r.top + r.height / 2, 8);
       somSino();
+      abertos++;
+      elAbertos.textContent = abertos;
+      reanimar(status, 'chegou');
+      if (abertos === VALES.length) {
+        status.innerHTML = 'Todos revelados. <em>Válidos para sempre — é só me mostrar esta tela.</em>';
+        status.classList.add('completo');
+        chuva(24);
+      }
     }
-    cv.addEventListener('pointerdown', e => { if (!pronto) return; raspando = true; ultimo = null; try { cv.setPointerCapture(e.pointerId); } catch (_) {} raspar(pos(e)); });
+    cv.addEventListener('pointerdown', e => {
+      if (!pronto) return;
+      raspando = true; ultimo = null;
+      try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+      raspar(pos(e));
+    });
     cv.addEventListener('pointermove', e => { if (raspando) raspar(pos(e)); });
     const parar = () => { raspando = false; ultimo = null; };
     cv.addEventListener('pointerup', parar);
     cv.addEventListener('pointercancel', parar);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); revelar(); } });
   });
-})();
+}
+
+/* =========================================================
+   PERGUNTA FINAL — o "não" foge, o "sim" comemora
+   ========================================================= */
+function final() {
+  const sec = $('final');
+  const nao = $('btnNao');
+  const sim = $('btnSim');
+  const resposta = $('resposta');
+  const frases = ['Não', 'Tem certeza?', 'Pensa bem…', 'Botão errado', 'Impossível', 'Nem tenta'];
+  let n = 0;
+
+  // foge para um ponto visível dentro da própria seção
+  function fugir() {
+    const r = sec.getBoundingClientRect();
+    const w = nao.offsetWidth, h = nao.offsetHeight;
+    const topo = Math.max(0, -r.top) + 80;
+    const base = Math.min(r.height, innerHeight - r.top) - h - 16;
+    nao.classList.add('fugindo');
+    nao.style.left = 16 + Math.random() * Math.max(0, r.width - w - 32) + 'px';
+    nao.style.top = topo + Math.random() * Math.max(0, base - topo) + 'px';
+    nao.textContent = frases[++n % frases.length];
+  }
+  if (toqueFino) nao.addEventListener('pointerenter', fugir);
+  nao.addEventListener('click', e => { e.preventDefault(); fugir(); });
+
+  sim.addEventListener('click', e => {
+    nao.hidden = true;
+    sim.classList.add('aceito');
+    resposta.classList.add('mostrar');
+    const [x, y] = pontoDe(e, sim);
+    explodir(x, y, 10);
+    chuva(48);
+    somSino();
+  });
+}
 
 /* =========================================================
    REVELAR AO ROLAR
    ========================================================= */
-const observador = new IntersectionObserver(es => es.forEach(e => {
-  if (e.isIntersecting) { e.target.classList.add('visivel'); observador.unobserve(e.target); }
-}), { threshold: 0.15 });
-document.querySelectorAll('.revelar').forEach(el => observador.observe(el));
+function revelarAoRolar() {
+  const els = document.querySelectorAll('.revelar');
+  if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('visivel')); return; }
+  const obs = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visivel'); obs.unobserve(e.target); }
+  }), { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(el => obs.observe(el));
+}
+
+intro();
+topo();
+kitty();
+tempo();
+carta();
+motivos();
+ceu();
+vales();
+final();
+revelarAoRolar();
